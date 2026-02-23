@@ -14,35 +14,57 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    html{scroll-behavior:smooth}
-    body{font-family:Inter,sans-serif;background:#050915;color:#EAF0FF}
-    .bgfx{position:fixed;inset:0;z-index:-2;background:
-      radial-gradient(1000px 560px at -10% -10%,rgba(86,134,255,.38),transparent 58%),
-      radial-gradient(900px 560px at 110% -5%,rgba(196,120,255,.26),transparent 55%),
-      radial-gradient(700px 400px at 50% 120%,rgba(107,250,215,.15),transparent 60%),#050915}
+    html,body{margin:0;padding:0;scroll-behavior:smooth}
+    body{font-family:Inter,sans-serif;background:#050915;color:#EAF0FF;overflow-x:hidden}
     .display{font-family:Poppins,sans-serif;letter-spacing:-.03em}
-    .glass{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));border:1px solid rgba(140,170,245,.28);backdrop-filter:blur(10px)}
-    .stroke-card{border:1px solid rgba(140,170,245,.24);background:#0b132b}
+    .bgfx{position:fixed;inset:0;z-index:-3;background:
+      radial-gradient(1200px 700px at -15% -10%,rgba(83,132,255,.40),transparent 60%),
+      radial-gradient(1000px 650px at 115% -15%,rgba(201,126,255,.30),transparent 58%),
+      radial-gradient(900px 500px at 50% 120%,rgba(118,240,215,.18),transparent 62%),
+      #050915}
+    .mesh{position:fixed;inset:0;z-index:-2;opacity:.18;background-image:linear-gradient(rgba(126,162,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(126,162,255,.08) 1px,transparent 1px);background-size:34px 34px;mask-image:radial-gradient(circle at center,black 40%,transparent 100%)}
+    .nav-shell{background:rgba(8,14,32,.55);backdrop-filter:blur(14px);border:1px solid rgba(137,170,246,.28)}
+    .navlink{position:relative}
+    .navlink::after{content:'';position:absolute;left:0;bottom:-3px;height:2px;width:0;background:#9ec5ff;transition:.25s}
+    .navlink:hover::after,.navlink.active::after{width:100%}
+
+    .hero-wrap{position:relative;border:1px solid rgba(137,170,246,.28);background:linear-gradient(130deg,rgba(255,255,255,.09),rgba(255,255,255,.01));backdrop-filter:blur(10px);border-radius:32px;overflow:hidden}
+    .hero-wrap::before{content:'';position:absolute;inset:-2px;background:conic-gradient(from 90deg at 50% 50%,rgba(132,180,255,.4),rgba(118,240,215,.18),rgba(201,149,255,.4),rgba(132,180,255,.4));filter:blur(22px);opacity:.5;z-index:-1}
     .grad-text{background:linear-gradient(90deg,#9ec5ff,#87f0dd,#d4a3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .hero-orb{position:absolute;border-radius:999px;filter:blur(42px);opacity:.42;animation:float 8s ease-in-out infinite}
-    .o1{width:180px;height:180px;background:#7aa7ff;right:12%;top:-38px}.o2{width:140px;height:140px;background:#74f0d8;left:-24px;bottom:-18px;animation-delay:1.2s}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-    .tilt:hover{transform:translateY(-4px)}
-    .tilt{transition:.25s ease}
-    .section-title{font-family:Poppins,sans-serif;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.04;letter-spacing:-.02em}
-    .kicker{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:#a7b9ea}
-    .sticky-col{position:sticky;top:98px}
-    .timeline:before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:linear-gradient(#7ea9ff,#78efd8)}
-    .timeline > div{position:relative;padding-left:34px}.timeline > div:before{content:'';position:absolute;left:4px;top:7px;width:16px;height:16px;border-radius:50%;background:#79a8ff;box-shadow:0 0 0 4px rgba(121,168,255,.2)}
-    .pill{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .7rem;border-radius:999px;border:1px solid rgba(255,255,255,.25);font-size:.72rem}
-    .navlink{position:relative}.navlink:after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:2px;background:#9ec5ff;transition:.2s}.navlink:hover:after,.navlink.active:after{width:100%}
+    .hero-orb{position:absolute;border-radius:999px;filter:blur(46px);opacity:.5;animation:drift 9s ease-in-out infinite}
+    .o1{width:220px;height:220px;right:-40px;top:-40px;background:#7baeff}.o2{width:170px;height:170px;left:-34px;bottom:-34px;background:#79f0da;animation-delay:1.3s}
+    @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+
+    .section{position:relative}
+    .section-card{border:1px solid rgba(137,170,246,.22);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(8px);border-radius:28px}
+    .section-title{font-family:Poppins,sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);line-height:1.03;letter-spacing:-.02em}
+    .kicker{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:#a8bbed}
+    .stroke-card{background:#0a1229;border:1px solid rgba(137,170,246,.22);border-radius:18px}
+
+    .arch-left{position:sticky;top:96px}
+    .flow-track{position:relative;padding-left:34px}
+    .flow-track:before{content:'';position:absolute;left:12px;top:4px;bottom:4px;width:2px;background:linear-gradient(#82afff,#7af0da)}
+    .flow-item{position:relative}
+    .flow-item:before{content:'';position:absolute;left:-28px;top:10px;width:12px;height:12px;border-radius:50%;background:#84b4ff;box-shadow:0 0 0 6px rgba(132,180,255,.17)}
+
+    .callout{border-left:4px solid transparent;border-image:linear-gradient(#84b4ff,#76f0d7) 1;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border-radius:14px;padding:14px}
+
+    .timeline{position:relative;padding-left:30px}
+    .timeline:before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(#84b4ff,#76f0d7)}
+    .timeline-step{position:relative}
+    .timeline-step:before{content:'';position:absolute;left:-24px;top:8px;width:12px;height:12px;border-radius:50%;background:#84b4ff;box-shadow:0 0 0 5px rgba(132,180,255,.18)}
+
+    .reveal{opacity:0;transform:translateY(18px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
+    .reveal.in{opacity:1;transform:none}
+    @media (max-width:1024px){.arch-left{position:relative;top:auto}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body class="antialiased">
-<div class="bgfx"></div>
+<div class="bgfx"></div><div class="mesh"></div>
 
 <header class="fixed top-3 left-1/2 -translate-x-1/2 w-[min(1180px,calc(100%-20px))] z-50">
-  <div class="glass rounded-2xl px-4 py-3 flex items-center justify-between">
+  <div class="nav-shell rounded-2xl px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-violet grid place-content-center text-bg font-bold">OC</div><div class="display font-semibold">OpenClaw Strategy</div></div>
     <nav class="hidden md:flex gap-6 text-sm text-blue-100/90">
       <a class="navlink" href="#overview">Overview</a>
@@ -54,44 +76,42 @@
   </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 space-y-20">
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 space-y-24">
 
-  <!-- HERO -->
-  <section id="overview" class="grid lg:grid-cols-[1.05fr,.95fr] gap-6 items-stretch">
-    <article class="glass rounded-[30px] p-7 sm:p-10 relative overflow-hidden">
+  <section id="overview" class="section reveal">
+    <div class="hero-wrap grid lg:grid-cols-[1.05fr,.95fr] gap-6 p-7 sm:p-10">
       <span class="hero-orb o1"></span><span class="hero-orb o2"></span>
-      <p class="kicker">Interplay · implementación OpenClaw</p>
-      <h1 class="display text-4xl sm:text-5xl lg:text-6xl leading-[.95] mt-3">Implementar OpenClaw para <span class="grad-text">producir más con presupuesto controlado</span></h1>
-      <p class="mt-5 text-blue-100/80 text-lg max-w-2xl">No es una demo técnica. Es un sistema operativo de trabajo: arquitectura por roles, política de escalado y control de costo por diseño.</p>
-      <div class="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Meta</div><div class="display text-xl">USD 40–50</div></div>
-        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Ritmo</div><div class="display text-xl">8h/día</div></div>
-        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Prioridad</div><div class="display text-xl">Control</div></div>
-        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Regla</div><div class="display text-xl">Hard cap</div></div>
-      </div>
-    </article>
-    <article class="relative overflow-hidden rounded-[30px] border border-blue-300/30">
-      <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="OpenClaw visual" class="w-full h-full object-cover min-h-[420px]"/>
-      <div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-[#050915] to-transparent">
-        <p class="text-sm text-blue-100/80">Manager + especialistas + node local = ejecución más segura y más barata.</p>
-      </div>
-    </article>
+      <article>
+        <p class="kicker">Interplay · implementación OpenClaw</p>
+        <h1 class="display text-4xl sm:text-5xl lg:text-6xl leading-[.95] mt-3">Implementar OpenClaw para <span class="grad-text">producir más con presupuesto controlado</span></h1>
+        <p class="mt-5 text-blue-100/80 text-lg max-w-2xl">No es una demo técnica. Es un sistema operativo de trabajo: arquitectura por roles, política de escalado y control de costo por diseño.</p>
+        <div class="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="stroke-card p-3"><div class="text-[11px] text-blue-100/65">Meta</div><div class="display text-xl">USD 40–50</div></div>
+          <div class="stroke-card p-3"><div class="text-[11px] text-blue-100/65">Ritmo</div><div class="display text-xl">8h/día</div></div>
+          <div class="stroke-card p-3"><div class="text-[11px] text-blue-100/65">Prioridad</div><div class="display text-xl">Control</div></div>
+          <div class="stroke-card p-3"><div class="text-[11px] text-blue-100/65">Regla</div><div class="display text-xl">Hard cap</div></div>
+        </div>
+      </article>
+      <article class="relative rounded-3xl overflow-hidden border border-blue-300/28">
+        <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="OpenClaw visual" class="w-full h-full object-cover min-h-[430px]"/>
+        <div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-[#050915] to-transparent"><p class="text-sm text-blue-100/80">Manager + especialistas + node local = ejecución más segura y más barata.</p></div>
+      </article>
+    </div>
   </section>
 
-  <!-- ARCHITECTURE: editorial split -->
-  <section id="architecture" class="grid lg:grid-cols-[.42fr,.58fr] gap-6 items-start">
-    <aside class="sticky-col glass rounded-3xl p-6">
+  <section id="architecture" class="section reveal grid lg:grid-cols-[.4fr,.6fr] gap-6 items-start">
+    <aside class="arch-left section-card p-6">
       <p class="kicker">Arquitectura operativa</p>
       <h2 class="section-title mt-2">Un flujo que negocio y tecnología entienden igual</h2>
       <p class="mt-3 text-blue-100/80">Cada bloque tiene una responsabilidad clara: conversación, ejecución especializada, y acción local con controles.</p>
-      <div class="mt-5 flex flex-wrap gap-2">
-        <span class="pill text-mint border-mint/40">Manager</span>
-        <span class="pill text-accent border-accent/40">Sub-agents</span>
-        <span class="pill text-violet border-violet/40">Node Mac mini</span>
+      <div class="flow-track mt-6 space-y-4 text-sm">
+        <div class="flow-item"><b>Manager</b><p class="text-blue-100/75">Triage, aprobación y control de contexto.</p></div>
+        <div class="flow-item"><b>Sub-agents</b><p class="text-blue-100/75">Especialistas por dominio con límites.</p></div>
+        <div class="flow-item"><b>Node Mac mini</b><p class="text-blue-100/75">Ejecución local con allowlists.</p></div>
       </div>
     </aside>
     <div class="space-y-4">
-      <div class="stroke-card rounded-3xl p-4 tilt">
+      <article class="section-card p-4">
         <svg viewBox="0 0 760 360" class="w-full rounded-2xl bg-[#0b1228] border border-blue-300/20">
           <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9CC2FF"/></marker></defs>
           <rect x="22" y="140" width="120" height="70" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="82" y="182" fill="#EAF0FF" text-anchor="middle" font-size="13">Telegram</text>
@@ -107,49 +127,47 @@
           <line x1="530" y1="99" x2="574" y2="99" stroke="#9CC2FF" marker-end="url(#a)"/>
           <line x1="530" y1="188" x2="574" y2="188" stroke="#9CC2FF" marker-end="url(#a)"/>
         </svg>
-      </div>
+      </article>
       <div class="grid sm:grid-cols-3 gap-3">
-        <div class="glass rounded-2xl p-4"><h3 class="display text-xl">Menos fricción</h3><p class="text-sm text-blue-100/75 mt-1">El manager traduce intención a ejecución.</p></div>
-        <div class="glass rounded-2xl p-4"><h3 class="display text-xl">Más control</h3><p class="text-sm text-blue-100/75 mt-1">Gates y límites antes de escalar costo.</p></div>
-        <div class="glass rounded-2xl p-4"><h3 class="display text-xl">Más velocidad</h3><p class="text-sm text-blue-100/75 mt-1">Playbooks API-first, sin UI manual.</p></div>
+        <div class="callout"><b>Menos fricción</b><p class="text-sm text-blue-100/75 mt-1">El manager traduce intención a ejecución.</p></div>
+        <div class="callout"><b>Más control</b><p class="text-sm text-blue-100/75 mt-1">Gates y límites antes de escalar costo.</p></div>
+        <div class="callout"><b>Más velocidad</b><p class="text-sm text-blue-100/75 mt-1">Playbooks API-first, sin UI manual.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ECONOMICS: dramatic -->
-  <section id="economics" class="grid lg:grid-cols-[1.15fr,.85fr] gap-6 items-start">
-    <article class="glass rounded-3xl p-6 sm:p-8">
+  <section id="economics" class="section reveal grid lg:grid-cols-[1.12fr,.88fr] gap-6 items-start">
+    <article class="section-card p-6 sm:p-8">
       <p class="kicker">Economía operativa</p>
       <h2 class="section-title mt-1">El enemigo no es el modelo: <span class="grad-text">es la salida larga sin gobernanza</span></h2>
-      <div class="mt-5 stroke-card rounded-2xl p-4"><canvas id="costChart" height="120"></canvas></div>
+      <div class="mt-5 stroke-card p-4"><canvas id="costChart" height="120"></canvas></div>
     </article>
     <article class="space-y-3">
-      <div class="glass rounded-2xl p-4 border-l-4 border-mint"><b>Palanca 1 · Verbosidad</b><p class="text-sm text-blue-100/75 mt-1">Respuestas cortas por defecto y formatos estructurados.</p></div>
-      <div class="glass rounded-2xl p-4 border-l-4 border-accent"><b>Palanca 2 · Contexto</b><p class="text-sm text-blue-100/75 mt-1">Skills mínimas por rol y prompts compactos.</p></div>
-      <div class="glass rounded-2xl p-4 border-l-4 border-warn"><b>Palanca 3 · Escalado</b><p class="text-sm text-blue-100/75 mt-1">Premium solo con gate de aprobación + presupuesto residual.</p></div>
-      <div class="glass rounded-2xl p-4"><b class="display text-xl">Conclusión</b><p class="text-sm text-blue-100/80 mt-1">Con routing + hard caps + disciplina de output, la meta de costo deja de ser aspiracional y se vuelve operable.</p></div>
+      <div class="section-card p-4 border-l-4 border-mint"><b>Palanca 1 · Verbosidad</b><p class="text-sm text-blue-100/75 mt-1">Respuestas cortas por defecto y formatos estructurados.</p></div>
+      <div class="section-card p-4 border-l-4 border-accent"><b>Palanca 2 · Contexto</b><p class="text-sm text-blue-100/75 mt-1">Skills mínimas por rol y prompts compactos.</p></div>
+      <div class="section-card p-4 border-l-4 border-warn"><b>Palanca 3 · Escalado</b><p class="text-sm text-blue-100/75 mt-1">Premium solo con gate de aprobación + presupuesto residual.</p></div>
+      <div class="section-card p-4"><b class="display text-xl">Conclusión</b><p class="text-sm text-blue-100/80 mt-1">Con routing + hard caps + disciplina de output, la meta de costo deja de ser aspiracional y se vuelve operable.</p></div>
     </article>
   </section>
 
-  <!-- EXECUTION: timeline + decisions -->
-  <section id="execution" class="grid lg:grid-cols-[.95fr,1.05fr] gap-6 items-start">
-    <article class="glass rounded-3xl p-6">
+  <section id="execution" class="section reveal grid lg:grid-cols-[.95fr,1.05fr] gap-6 items-start">
+    <article class="section-card p-6">
       <p class="kicker">30-60-90</p>
       <h2 class="section-title mt-1">Plan de implementación</h2>
-      <div class="timeline relative mt-5 space-y-5">
-        <div><h3 class="display text-xl">30 días · Control</h3><p class="text-sm text-blue-100/75">Hard caps, límites de salida y dashboard de costo/tokens.</p></div>
-        <div><h3 class="display text-xl">60 días · Estabilizar</h3><p class="text-sm text-blue-100/75">Playbooks productivos y tuning de prompts/fallbacks.</p></div>
-        <div><h3 class="display text-xl">90 días · Escalar</h3><p class="text-sm text-blue-100/75">Catálogo de especialistas y gobierno formal por rol.</p></div>
+      <div class="timeline mt-5 space-y-5">
+        <div class="timeline-step"><h3 class="display text-xl">30 días · Control</h3><p class="text-sm text-blue-100/75">Hard caps, límites de salida y dashboard de costo/tokens.</p></div>
+        <div class="timeline-step"><h3 class="display text-xl">60 días · Estabilizar</h3><p class="text-sm text-blue-100/75">Playbooks productivos y tuning de prompts/fallbacks.</p></div>
+        <div class="timeline-step"><h3 class="display text-xl">90 días · Escalar</h3><p class="text-sm text-blue-100/75">Catálogo de especialistas y gobierno formal por rol.</p></div>
       </div>
     </article>
-    <article class="glass rounded-3xl p-6">
+    <article class="section-card p-6">
       <p class="kicker">Decisiones para aprobar hoy</p>
       <h2 class="section-title mt-1">Lo mínimo para arrancar bien</h2>
       <div class="mt-5 grid gap-3">
-        <div class="stroke-card rounded-xl p-3"><b>1) Gateway inicial</b><p class="text-sm text-blue-100/75">LiteLLM / OpenRouter / Vercel AI Gateway.</p></div>
-        <div class="stroke-card rounded-xl p-3"><b>2) Presupuesto por rol</b><p class="text-sm text-blue-100/75">Manager vs especialistas con hard cap mensual.</p></div>
-        <div class="stroke-card rounded-xl p-3"><b>3) Política de escalado premium</b><p class="text-sm text-blue-100/75">Qué tareas escalan, quién aprueba y con qué umbral.</p></div>
-        <div class="stroke-card rounded-xl p-3"><b>4) KPIs de 30 días</b><p class="text-sm text-blue-100/75">Costo/día, tokens/tarea, éxito de playbooks.</p></div>
+        <div class="stroke-card p-3"><b>1) Gateway inicial</b><p class="text-sm text-blue-100/75">LiteLLM / OpenRouter / Vercel AI Gateway.</p></div>
+        <div class="stroke-card p-3"><b>2) Presupuesto por rol</b><p class="text-sm text-blue-100/75">Manager vs especialistas con hard cap mensual.</p></div>
+        <div class="stroke-card p-3"><b>3) Política de escalado premium</b><p class="text-sm text-blue-100/75">Qué tareas escalan, quién aprueba y con qué umbral.</p></div>
+        <div class="stroke-card p-3"><b>4) KPIs de 30 días</b><p class="text-sm text-blue-100/75">Costo/día, tokens/tarea, éxito de playbooks.</p></div>
       </div>
     </article>
   </section>
@@ -158,12 +176,12 @@
 
 <script>
   lucide.createIcons();
-
-  // nav active
   const links=[...document.querySelectorAll('.navlink')];
   const secs=[...document.querySelectorAll('main section[id]')];
   const io=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}})},{threshold:.45});
   secs.forEach(s=>io.observe(s));
+  const rv=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>rv.observe(el));
 
   new Chart(document.getElementById('costChart'),{
     type:'bar',
