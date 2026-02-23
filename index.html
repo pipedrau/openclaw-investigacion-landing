@@ -4,70 +4,127 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OpenClaw · Estrategia de costo y arquitectura</title>
-  <meta name="description" content="Landing ejecutiva: benchmark de costos, arquitectura y plan de implementación OpenClaw para presupuesto USD 40–50." />
+  <meta name="description" content="Landing ejecutiva: benchmark de costos, arquitectura y estrategia OpenClaw para presupuesto USD 40–50." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    :root{--bg:#0b1020;--panel:#121a31;--soft:#1a2647;--txt:#e8edff;--muted:#9fb0df;--pri:#6ea8fe;--ok:#41d39a;--warn:#ffcc66}
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui;background:radial-gradient(1200px 600px at 80% -20%,#1b2f70 0%,transparent 60%),var(--bg);color:var(--txt)}
-    .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
-    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:stretch}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid #2a3a6a;border-radius:16px;padding:20px}
-    h1{font-size:36px;line-height:1.1;margin:0 0 10px} h2{font-size:22px;margin:0 0 10px} h3{font-size:17px;margin:0 0 8px}
-    p{color:var(--muted);line-height:1.55} .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #3354a6;color:#cfe0ff;padding:7px 12px;border-radius:999px;font-size:13px}
-    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.kpi{background:var(--panel);border:1px solid #2a3a6a;border-radius:12px;padding:14px}.kpi b{font-size:24px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.list{display:grid;gap:8px;margin:0;padding-left:0;list-style:none}.list li{display:flex;gap:10px;align-items:flex-start;color:#dbe5ff}
-    .section{margin-top:18px}.table{width:100%;border-collapse:collapse;font-size:14px}.table th,.table td{padding:10px;border-bottom:1px solid #2a3a6a;text-align:left}.table th{color:#cddafe;background:#132041}
-    .tag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;background:#20315e;color:#cfe0ff;border:1px solid #35549f}
+    :root{
+      --bg:#060a16;--bg2:#0f1731;--panel:rgba(18,26,49,.72);--stroke:#2b3d75;
+      --txt:#edf2ff;--muted:#9eb1e1;--pri:#7ab1ff;--ok:#47e0ae;--warn:#ffd166;
+      --pink:#ff69c8;--cyan:#58d7ff;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:radial-gradient(1200px 700px at 10% -15%,#1e3271 0%,transparent 60%),radial-gradient(1200px 700px at 95% -10%,#45206e 0%,transparent 50%),var(--bg);color:var(--txt);font-family:Inter,system-ui;-webkit-font-smoothing:antialiased}
+    .noise::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.08;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.35"/></svg>')}
+    .bg-blur{position:fixed;inset:auto;z-index:-1;filter:blur(80px);opacity:.5}
+    .b1{width:360px;height:360px;border-radius:50%;background:#2a56ff;left:-90px;top:120px;position:fixed;animation:float 12s ease-in-out infinite}
+    .b2{width:420px;height:420px;border-radius:50%;background:#9b47ff;right:-120px;top:220px;position:fixed;animation:float 15s ease-in-out infinite reverse}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+
+    .wrap{max-width:1160px;margin:0 auto;padding:28px 20px 72px}
+    .reveal{opacity:0;transform:translateY(18px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
+    .reveal.in{opacity:1;transform:translateY(0)}
+
+    .glass{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter: blur(14px);border:1px solid var(--stroke);border-radius:20px}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch}
+    .hero-main{padding:28px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(40,67,132,.45);border:1px solid #3a5cb0;font-size:13px;color:#d8e5ff}
+    h1{font-size:44px;line-height:1.02;margin:14px 0 12px;letter-spacing:-.03em}
+    .grad{background:linear-gradient(90deg,var(--pri),var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+    p{color:var(--muted);line-height:1.6}
+
+    .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;text-decoration:none;color:white;border:1px solid #4267c0;background:#2c4fa6}
+    .btn.alt{background:transparent;border-color:#3f5187;color:#d4e1ff}
+
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+    .kpi{padding:14px;border-radius:14px;border:1px solid #30497f;background:rgba(14,22,44,.8)}
+    .kpi .v{font-size:24px;font-weight:800}.kpi .l{color:var(--muted);font-size:12px}
+
+    .hero-art{overflow:hidden;position:relative}
+    .hero-art img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02);animation:zoom 18s ease-in-out infinite}
+    .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(6,10,22,.8) 100%)}
+    @keyframes zoom{0%,100%{transform:scale(1.02)}50%{transform:scale(1.08)}}
+
+    .section{margin-top:18px;padding:22px}
+    h2{font-size:26px;margin:0 0 10px;letter-spacing:-.02em}
+    h3{font-size:18px;margin:0 0 8px}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .feature{display:flex;gap:12px;padding:12px;border-radius:14px;border:1px solid #2c3f74;background:rgba(9,16,35,.6)}
+    .feature i{color:#9fc5ff;margin-top:2px}
+
+    .chart-wrap{padding:14px;border-radius:16px;border:1px solid #2d4278;background:rgba(9,16,35,.6)}
+
+    .table{width:100%;border-collapse:collapse;font-size:14px;overflow:hidden;border-radius:14px;border:1px solid #2d4278}
+    .table th,.table td{padding:12px;border-bottom:1px solid #263a69;text-align:left}
+    .table th{background:#152343;color:#cfddff}
+    .table tr:nth-child(even) td{background:rgba(16,27,54,.5)}
+    .tag{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #486cc6;background:#243f82;color:#d9e8ff;font-size:12px}
+
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .img-card{overflow:hidden;position:relative}
+    .img-card img{width:100%;height:290px;object-fit:cover;display:block}
+    .img-card .cap{position:absolute;left:12px;bottom:12px;background:rgba(6,10,22,.7);padding:8px 10px;border:1px solid #34539a;border-radius:10px;font-size:12px;color:#cfe0ff}
+
     .plan{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .list{margin:0;padding-left:18px;color:#dbe6ff}
+    .list li{margin:8px 0}
     .footer{margin-top:22px;color:#8ea2d8;font-size:13px}
-    @media (max-width:920px){.hero,.grid-2,.plan,.kpis{grid-template-columns:1fr}}
+
+    @media (max-width:980px){.hero,.grid-2,.split,.plan,.kpis{grid-template-columns:1fr}h1{font-size:34px}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <section class="card">
-        <span class="pill"><i data-lucide="bot"></i> OpenClaw · Interplay</span>
-        <h1>Estrategia técnica y financiera<br/>para operar con <span style="color:var(--pri)">USD 40–50/mes</span></h1>
-        <p>El costo se dispara por contexto inflado + respuestas largas + sub-agents sin límites. La solución real no es “cambiar de modelo”, sino imponer gobernanza de tokens y presupuesto por diseño.</p>
-        <div class="kpis">
-          <div class="kpi"><div style="color:var(--muted)">Objetivo mensual</div><b>USD 40–50</b></div>
-          <div class="kpi"><div style="color:var(--muted)">Uso de referencia</div><b>8 h/día</b></div>
-          <div class="kpi"><div style="color:var(--muted)">Palanca crítica</div><b>Hard cap</b></div>
-        </div>
-      </section>
-      <section class="card">
-        <h3><i data-lucide="gauge"></i> Riesgo de sobrecosto</h3>
-        <canvas id="riskChart" height="240"></canvas>
-      </section>
-    </div>
+  <div class="noise"></div>
+  <div class="bg-blur b1"></div>
+  <div class="bg-blur b2"></div>
 
-    <section class="section card">
-      <h2><i data-lucide="network"></i> Arquitectura recomendada</h2>
-      <div class="grid-2">
-        <ul class="list">
-          <li><i data-lucide="message-circle"></i><div><b>Manager (Telegram)</b><br/><small>Triaging, contexto corto, herramientas mínimas.</small></div></li>
-          <li><i data-lucide="users"></i><div><b>Specialist sub-agents</b><br/><small>Dev/deploy/research en sesiones aisladas, con aprobación.</small></div></li>
-          <li><i data-lucide="monitor-smartphone"></i><div><b>Node Mac mini</b><br/><small>Ejecución local de CLIs/repos, separando cerebro de acción.</small></div></li>
-        </ul>
-        <ul class="list">
-          <li><i data-lucide="github"></i><div><b>GitHub Actions</b><br/><small>workflow_dispatch para pipeline y logs.</small></div></li>
-          <li><i data-lucide="rocket"></i><div><b>Netlify/Vercel</b><br/><small>Build hooks/API sin depender de navegación UI.</small></div></li>
-          <li><i data-lucide="shield-check"></i><div><b>Governance</b><br/><small>Allowlists, approvals, límites por rol.</small></div></li>
-        </ul>
+  <div class="wrap">
+    <section class="hero reveal">
+      <div class="glass hero-main">
+        <span class="badge"><i data-lucide="sparkles"></i> OpenClaw · Interplay · Strategy Deck</span>
+        <h1>Arquitectura + costo:<br><span class="grad">cómo operar IA con USD 40–50/mes</span></h1>
+        <p>Esta propuesta convierte la investigación en una estrategia ejecutable: control duro de presupuesto, arquitectura por roles (manager + especialistas) y despliegue operativo con node Mac mini para separar coordinación y ejecución.</p>
+        <div class="cta-row">
+          <a class="btn" href="#estrategia"><i data-lucide="target"></i> Ver estrategia</a>
+          <a class="btn alt" href="#costos"><i data-lucide="bar-chart-3"></i> Ver benchmark</a>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Budget objetivo</div><div class="v">USD 40–50</div></div>
+          <div class="kpi"><div class="l">Ritmo analizado</div><div class="v">8 h / día</div></div>
+          <div class="kpi"><div class="l">Control clave</div><div class="v">Hard cap</div></div>
+        </div>
+      </div>
+      <div class="glass hero-art">
+        <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="Control room OpenClaw" />
       </div>
     </section>
 
-    <section class="section card">
-      <h2><i data-lucide="bar-chart-3"></i> Sensibilidad de costo mensual (240h/mes)</h2>
-      <p>Con volumen alto de tokens, incluso modelos económicos rebasan USD 50 sin control de salida/contexto.</p>
-      <canvas id="costChart" height="130"></canvas>
+    <section class="glass section reveal" id="arquitectura">
+      <h2><i data-lucide="network"></i> Arquitectura recomendada</h2>
+      <div class="grid-2">
+        <div>
+          <div class="feature"><i data-lucide="message-circle"></i><div><b>Manager Agent</b><br><small>Habla por Telegram, triage, decisiones rápidas. Contexto corto y herramientas mínimas.</small></div></div>
+          <div class="feature"><i data-lucide="users"></i><div><b>Specialist Sub-agents</b><br><small>Dev/deploy/research en background con límites de tiempo, tokens y concurrencia.</small></div></div>
+          <div class="feature"><i data-lucide="laptop"></i><div><b>Node Mac mini</b><br><small>Ejecuta CLIs y repos locales con approvals y allowlists.</small></div></div>
+        </div>
+        <div class="img-card glass">
+          <img src="assets/2026-02-23-openclaw-architecture-flow.png" alt="Data flow architecture" />
+          <div class="cap">Manager → Specialists → Node/Cloud (routing controlado)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass section reveal" id="costos">
+      <h2><i data-lucide="bar-chart-3"></i> Sensibilidad de costos (240h/mes)</h2>
+      <p>Con volumen alto de tokens, incluso modelos económicos se salen del objetivo sin gobernanza de salida/contexto.</p>
+      <div class="chart-wrap"><canvas id="costChart" height="120"></canvas></div>
       <table class="table" style="margin-top:12px">
-        <thead><tr><th>Modelo</th><th>Costo (1M in + 1M out)</th><th>Costo mensual estimado</th><th></th></tr></thead>
+        <thead><tr><th>Modelo</th><th>Costo (1M in + 1M out)</th><th>Costo mensual estimado</th><th>Estado</th></tr></thead>
         <tbody>
           <tr><td>GPT-5 mini</td><td>USD 2.25</td><td>~USD 378</td><td><span class="tag">Sobre presupuesto</span></td></tr>
           <tr><td>Gemini 2.5 Flash-Lite</td><td>USD 0.50</td><td>~USD 84</td><td><span class="tag">Más cercano</span></td></tr>
@@ -77,37 +134,31 @@
       </table>
     </section>
 
-    <section class="section plan">
-      <article class="card">
-        <h3><i data-lucide="target"></i> Recomendación ejecutiva</h3>
+    <section class="split reveal" id="estrategia">
+      <article class="glass section">
+        <h3><i data-lucide="shield-check"></i> Estrategia de control</h3>
         <ul class="list">
-          <li><i data-lucide="key-round"></i><div><b>LiteLLM + virtual keys</b> con presupuesto mensual duro por rol.</div></li>
-          <li><i data-lucide="git-branch"></i><div><b>Routing por agente:</b> manager barato, especialistas ultra baratos, premium solo por excepción.</div></li>
-          <li><i data-lucide="scissors"></i><div><b>Reducción de tokens:</b> skills mínimas, prompts compactos, respuestas cortas por defecto.</div></li>
+          <li>LiteLLM (o gateway equivalente) con <b>virtual keys y tope mensual duro</b> por rol.</li>
+          <li>Routing por agente: manager barato, especialistas ultra baratos, premium solo por excepción.</li>
+          <li>Recorte de contexto: skills mínimas, prompts compactos, respuestas cortas por defecto.</li>
+          <li>Observabilidad semanal: costo/tokens por agente, canal y tipo de tarea.</li>
         </ul>
       </article>
-      <article class="card">
-        <h3><i data-lucide="calendar-clock"></i> Plan de implementación</h3>
-        <p><b>Fase 1 (esta semana):</b> topes de gasto, políticas de salida/contexto, dashboard diario de tokens/costo.</p>
-        <p><b>Fase 2 (próxima):</b> node Mac mini, catálogo de sub-agents, playbooks deploy/diagnóstico por API.</p>
-        <p><b>Entrega esperada:</b> operación estable con control de costo y trazabilidad por agente.</p>
+      <article class="glass section">
+        <h3><i data-lucide="calendar-clock"></i> Plan de implementación (2 fases)</h3>
+        <ul class="list">
+          <li><b>Fase 1 (semana actual):</b> topes, alertas, límites de salida, dashboard de gasto diario.</li>
+          <li><b>Fase 2 (siguiente):</b> node Mac mini, catálogo de sub-agents, playbooks API-first (GitHub/Netlify/Vercel).</li>
+          <li><b>Resultado esperado:</b> operación estable con costo predecible.</li>
+        </ul>
       </article>
     </section>
 
-    <div class="footer">Documento visual basado en la investigación de benchmark y estrategia OpenClaw · Interplay · 2026</div>
+    <div class="footer reveal">Landing generada a partir de la investigación OpenClaw · Interplay · 2026</div>
   </div>
 
 <script>
   lucide.createIcons();
-  const riskCtx = document.getElementById('riskChart');
-  new Chart(riskCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Output verboso', 'Contexto inflado', 'Sub-agents paralelos'],
-      datasets: [{ data: [45, 35, 20], backgroundColor: ['#6ea8fe','#8f7bff','#41d39a'], borderWidth: 0 }]
-    },
-    options: { plugins: { legend: { labels: { color: '#d7e4ff' } } } }
-  });
 
   const costCtx = document.getElementById('costChart');
   new Chart(costCtx, {
@@ -115,15 +166,24 @@
     data: {
       labels: ['GPT-5 mini', 'Flash-Lite', 'FlashX', 'DeepSeek'],
       datasets: [
-        { label: 'Costo mensual estimado (USD)', data: [378,84,79,117.6], backgroundColor: ['#5f8fff','#41d39a','#72e7b7','#ffb86b'] },
-        { label: 'Objetivo máximo', data: [50,50,50,50], type:'line', borderColor:'#ff5d73', backgroundColor:'#ff5d73', pointRadius:0, borderWidth:2 }
+        { label: 'Costo mensual (USD)', data: [378,84,79,117.6], backgroundColor: ['#5d8dff','#3edfa9','#5ae3c6','#ffbe74'], borderRadius: 8 },
+        { label: 'Objetivo máximo', data: [50,50,50,50], type:'line', borderColor:'#ff6f91', backgroundColor:'#ff6f91', pointRadius:0, borderWidth:2 }
       ]
     },
     options: {
-      scales: { x: { ticks:{ color:'#d7e4ff' } }, y: { ticks:{ color:'#d7e4ff' }, grid:{ color:'rgba(255,255,255,.08)' } } },
-      plugins: { legend: { labels: { color:'#d7e4ff' } } }
+      responsive: true,
+      scales: {
+        x: { ticks: { color:'#d8e4ff' }, grid: { color:'rgba(255,255,255,.06)' } },
+        y: { ticks: { color:'#d8e4ff' }, grid: { color:'rgba(255,255,255,.08)' } }
+      },
+      plugins: { legend: { labels: { color:'#d8e4ff' } } }
     }
   });
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} })
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 </script>
 </body>
 </html>
