@@ -3,187 +3,262 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw · Estrategia de costo y arquitectura</title>
-  <meta name="description" content="Landing ejecutiva: benchmark de costos, arquitectura y estrategia OpenClaw para presupuesto USD 40–50." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <title>OpenClaw V3 · Strategy, Cost & Architecture</title>
+  <meta name="description" content="Versión 3 pro: landing de estrategia OpenClaw con hero espacial Three.js, menú y narrativa ejecutiva." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <style>
-    :root{
-      --bg:#060a16;--bg2:#0f1731;--panel:rgba(18,26,49,.72);--stroke:#2b3d75;
-      --txt:#edf2ff;--muted:#9eb1e1;--pri:#7ab1ff;--ok:#47e0ae;--warn:#ffd166;
-      --pink:#ff69c8;--cyan:#58d7ff;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:radial-gradient(1200px 700px at 10% -15%,#1e3271 0%,transparent 60%),radial-gradient(1200px 700px at 95% -10%,#45206e 0%,transparent 50%),var(--bg);color:var(--txt);font-family:Inter,system-ui;-webkit-font-smoothing:antialiased}
-    .noise::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.08;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.35"/></svg>')}
-    .bg-blur{position:fixed;inset:auto;z-index:-1;filter:blur(80px);opacity:.5}
-    .b1{width:360px;height:360px;border-radius:50%;background:#2a56ff;left:-90px;top:120px;position:fixed;animation:float 12s ease-in-out infinite}
-    .b2{width:420px;height:420px;border-radius:50%;background:#9b47ff;right:-120px;top:220px;position:fixed;animation:float 15s ease-in-out infinite reverse}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+    :root{--bg:#040714;--panel:rgba(11,18,38,.72);--line:#2c3e76;--text:#edf3ff;--muted:#a2b5e6;--p:#7bb2ff;--c:#67e1ff;--m:#cf7dff}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui;scroll-behavior:smooth}
+    a{text-decoration:none;color:inherit}
 
-    .wrap{max-width:1160px;margin:0 auto;padding:28px 20px 72px}
-    .reveal{opacity:0;transform:translateY(18px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
+    #space{position:fixed;inset:0;z-index:-2}
+    .veil{position:fixed;inset:0;z-index:-1;background:radial-gradient(1000px 500px at 10% 0%,rgba(69,122,255,.22),transparent 60%),radial-gradient(900px 550px at 95% 10%,rgba(194,95,255,.20),transparent 50%),linear-gradient(180deg,rgba(4,7,20,.25),rgba(4,7,20,.8) 65%,rgba(4,7,20,1));pointer-events:none}
+
+    .container{max-width:1180px;margin:0 auto;padding:0 20px}
+    .glass{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter: blur(16px);border:1px solid var(--line);border-radius:20px}
+
+    .nav{position:sticky;top:10px;z-index:30;padding-top:10px}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}
+    .brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.2px}
+    .brand-badge{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--m));display:grid;place-items:center;color:#05102b;font-weight:900}
+    .menu{display:flex;gap:8px;flex-wrap:wrap}
+    .menu a{padding:9px 12px;border-radius:12px;color:#dbe8ff;border:1px solid transparent;transition:.2s}
+    .menu a:hover{border-color:#3c5398;background:rgba(24,36,73,.55)}
+    .nav-cta{padding:9px 12px;border-radius:12px;background:#284aa8;border:1px solid #3f62c6;color:white;font-weight:600}
+
+    .hero{padding:58px 0 26px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}
+    .hero-main{padding:30px}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:rgba(39,63,130,.45);border:1px solid #3a5cb0;font-size:12px;color:#d5e3ff}
+    h1{font-size:52px;line-height:1.02;margin:14px 0 12px;letter-spacing:-.04em}
+    .grad{background:linear-gradient(90deg,var(--p),var(--c),var(--m));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .sub{color:var(--muted);font-size:17px;line-height:1.55}
+    .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid #3f62c6;background:#2b4fb0;color:white;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+    .btn.alt{background:transparent;border-color:#3b4f87;color:#d6e4ff}
+    .metrics{margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .metric{padding:13px;border-radius:14px;border:1px solid #30497f;background:rgba(12,20,42,.72)} .metric .n{font-size:24px;font-weight:800}.metric .l{font-size:12px;color:var(--muted)}
+
+    .hero-side{padding:16px;position:relative;overflow:hidden}
+    .hero-side img{width:100%;height:100%;min-height:390px;object-fit:cover;border-radius:14px;display:block}
+    .hero-side::after{content:"";position:absolute;left:16px;right:16px;bottom:16px;height:110px;border-radius:0 0 14px 14px;background:linear-gradient(180deg,transparent,rgba(4,7,20,.85))}
+    .floating{position:absolute;right:28px;top:26px;padding:8px 10px;border-radius:10px;font-size:12px;background:rgba(5,13,31,.7);border:1px solid #3556a4;color:#cfe0ff}
+
+    section{margin-top:16px;padding:22px}
+    h2{margin:0 0 10px;font-size:28px;letter-spacing:-.02em}
+    .muted{color:var(--muted)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .feature{display:flex;gap:11px;padding:12px;border-radius:14px;border:1px solid #2b3f74;background:rgba(8,15,34,.64)}
+    .feature i{color:#9dc4ff}
+    .chart-card{padding:14px;border-radius:16px;border:1px solid #2c4279;background:rgba(8,15,34,.65)}
+    .table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px;border:1px solid #2c4279;border-radius:14px;overflow:hidden}
+    .table th,.table td{padding:12px;border-bottom:1px solid #253a6a;text-align:left}
+    .table th{background:#142343;color:#cfddff}
+    .table tr:nth-child(even) td{background:rgba(15,25,50,.48)}
+    .tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid #486cc6;background:#243f82;color:#d9e8ff}
+
+    .timeline{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .phase{padding:16px;border-radius:16px;border:1px solid #314a86;background:rgba(9,16,35,.66)}
+    .phase h3{margin:0 0 8px}
+    ul{margin:8px 0 0;padding-left:18px}.footer{padding:22px 0 40px;color:#90a4d9;font-size:13px}
+
+    .reveal{opacity:0;transform:translateY(16px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
     .reveal.in{opacity:1;transform:translateY(0)}
 
-    .glass{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter: blur(14px);border:1px solid var(--stroke);border-radius:20px}
-    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch}
-    .hero-main{padding:28px}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(40,67,132,.45);border:1px solid #3a5cb0;font-size:13px;color:#d8e5ff}
-    h1{font-size:44px;line-height:1.02;margin:14px 0 12px;letter-spacing:-.03em}
-    .grad{background:linear-gradient(90deg,var(--pri),var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-    p{color:var(--muted);line-height:1.6}
-
-    .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;text-decoration:none;color:white;border:1px solid #4267c0;background:#2c4fa6}
-    .btn.alt{background:transparent;border-color:#3f5187;color:#d4e1ff}
-
-    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-    .kpi{padding:14px;border-radius:14px;border:1px solid #30497f;background:rgba(14,22,44,.8)}
-    .kpi .v{font-size:24px;font-weight:800}.kpi .l{color:var(--muted);font-size:12px}
-
-    .hero-art{overflow:hidden;position:relative}
-    .hero-art img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02);animation:zoom 18s ease-in-out infinite}
-    .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(6,10,22,.8) 100%)}
-    @keyframes zoom{0%,100%{transform:scale(1.02)}50%{transform:scale(1.08)}}
-
-    .section{margin-top:18px;padding:22px}
-    h2{font-size:26px;margin:0 0 10px;letter-spacing:-.02em}
-    h3{font-size:18px;margin:0 0 8px}
-
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .feature{display:flex;gap:12px;padding:12px;border-radius:14px;border:1px solid #2c3f74;background:rgba(9,16,35,.6)}
-    .feature i{color:#9fc5ff;margin-top:2px}
-
-    .chart-wrap{padding:14px;border-radius:16px;border:1px solid #2d4278;background:rgba(9,16,35,.6)}
-
-    .table{width:100%;border-collapse:collapse;font-size:14px;overflow:hidden;border-radius:14px;border:1px solid #2d4278}
-    .table th,.table td{padding:12px;border-bottom:1px solid #263a69;text-align:left}
-    .table th{background:#152343;color:#cfddff}
-    .table tr:nth-child(even) td{background:rgba(16,27,54,.5)}
-    .tag{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #486cc6;background:#243f82;color:#d9e8ff;font-size:12px}
-
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .img-card{overflow:hidden;position:relative}
-    .img-card img{width:100%;height:290px;object-fit:cover;display:block}
-    .img-card .cap{position:absolute;left:12px;bottom:12px;background:rgba(6,10,22,.7);padding:8px 10px;border:1px solid #34539a;border-radius:10px;font-size:12px;color:#cfe0ff}
-
-    .plan{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .list{margin:0;padding-left:18px;color:#dbe6ff}
-    .list li{margin:8px 0}
-    .footer{margin-top:22px;color:#8ea2d8;font-size:13px}
-
-    @media (max-width:980px){.hero,.grid-2,.split,.plan,.kpis{grid-template-columns:1fr}h1{font-size:34px}}
+    @media (max-width:980px){.hero,.grid2,.timeline,.metrics{grid-template-columns:1fr}h1{font-size:36px}.hero-side img{min-height:260px}.menu{display:none}}
   </style>
 </head>
 <body>
-  <div class="noise"></div>
-  <div class="bg-blur b1"></div>
-  <div class="bg-blur b2"></div>
+  <canvas id="space"></canvas>
+  <div class="veil"></div>
 
-  <div class="wrap">
-    <section class="hero reveal">
-      <div class="glass hero-main">
-        <span class="badge"><i data-lucide="sparkles"></i> OpenClaw · Interplay · Strategy Deck</span>
-        <h1>Arquitectura + costo:<br><span class="grad">cómo operar IA con USD 40–50/mes</span></h1>
-        <p>Esta propuesta convierte la investigación en una estrategia ejecutable: control duro de presupuesto, arquitectura por roles (manager + especialistas) y despliegue operativo con node Mac mini para separar coordinación y ejecución.</p>
-        <div class="cta-row">
-          <a class="btn" href="#estrategia"><i data-lucide="target"></i> Ver estrategia</a>
-          <a class="btn alt" href="#costos"><i data-lucide="bar-chart-3"></i> Ver benchmark</a>
-        </div>
-        <div class="kpis">
-          <div class="kpi"><div class="l">Budget objetivo</div><div class="v">USD 40–50</div></div>
-          <div class="kpi"><div class="l">Ritmo analizado</div><div class="v">8 h / día</div></div>
-          <div class="kpi"><div class="l">Control clave</div><div class="v">Hard cap</div></div>
-        </div>
-      </div>
-      <div class="glass hero-art">
-        <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="Control room OpenClaw" />
-      </div>
-    </section>
+  <div class="container nav">
+    <div class="glass nav-inner">
+      <div class="brand"><div class="brand-badge">OC</div> OpenClaw V3</div>
+      <nav class="menu">
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Arquitectura</a>
+        <a href="#cost">Costos</a>
+        <a href="#strategy">Estrategia</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+      <a class="nav-cta" href="#strategy">Plan recomendado</a>
+    </div>
+  </div>
 
-    <section class="glass section reveal" id="arquitectura">
-      <h2><i data-lucide="network"></i> Arquitectura recomendada</h2>
-      <div class="grid-2">
+  <main class="container">
+    <header class="hero reveal" id="overview">
+      <article class="glass hero-main">
+        <span class="eyebrow"><i data-lucide="sparkles"></i> Strategy Deck · Interplay · 2026</span>
+        <h1>Convierte OpenClaw en un<br><span class="grad">sistema eficiente y escalable</span></h1>
+        <p class="sub">Diseñamos una operación que sostiene calidad sin romper presupuesto: hard caps por rol, routing inteligente y separación manager/especialistas para ejecución controlada.</p>
+        <div class="hero-cta">
+          <a class="btn" href="#cost"><i data-lucide="bar-chart-3"></i> Ver benchmark</a>
+          <a class="btn alt" href="#roadmap"><i data-lucide="calendar-clock"></i> Ver roadmap</a>
+        </div>
+        <div class="metrics">
+          <div class="metric"><div class="l">Meta mensual</div><div class="n">USD 40–50</div></div>
+          <div class="metric"><div class="l">Ritmo analizado</div><div class="n">8h/día</div></div>
+          <div class="metric"><div class="l">Control crítico</div><div class="n">Hard cap</div></div>
+        </div>
+      </article>
+      <aside class="glass hero-side">
+        <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="OpenClaw control room" />
+        <div class="floating">Live cost governance</div>
+      </aside>
+    </header>
+
+    <section class="glass reveal" id="architecture">
+      <h2><i data-lucide="network"></i> Arquitectura operativa recomendada</h2>
+      <p class="muted">Modelo de ejecución: manager conversacional + especialistas en background + node Mac mini para tareas locales críticas.</p>
+      <div class="grid2">
         <div>
-          <div class="feature"><i data-lucide="message-circle"></i><div><b>Manager Agent</b><br><small>Habla por Telegram, triage, decisiones rápidas. Contexto corto y herramientas mínimas.</small></div></div>
-          <div class="feature"><i data-lucide="users"></i><div><b>Specialist Sub-agents</b><br><small>Dev/deploy/research en background con límites de tiempo, tokens y concurrencia.</small></div></div>
-          <div class="feature"><i data-lucide="laptop"></i><div><b>Node Mac mini</b><br><small>Ejecuta CLIs y repos locales con approvals y allowlists.</small></div></div>
+          <div class="feature"><i data-lucide="message-circle"></i><div><b>Manager Agent</b><br><small>Contexto corto, triage, decisiones y aprobaciones.</small></div></div>
+          <div class="feature"><i data-lucide="users"></i><div><b>Specialist Sub-agents</b><br><small>Dev/deploy/research aislados, con límites de tiempo y salida.</small></div></div>
+          <div class="feature"><i data-lucide="laptop"></i><div><b>Node Mac mini</b><br><small>CLIs y repos locales con allowlists por comando.</small></div></div>
         </div>
-        <div class="img-card glass">
-          <img src="assets/2026-02-23-openclaw-architecture-flow.png" alt="Data flow architecture" />
-          <div class="cap">Manager → Specialists → Node/Cloud (routing controlado)</div>
+        <div class="feature" style="height:100%;align-items:stretch">
+          <img src="assets/2026-02-23-openclaw-architecture-flow.png" alt="Arquitectura de flujo" style="width:100%;border-radius:12px;object-fit:cover;min-height:230px" />
         </div>
       </div>
     </section>
 
-    <section class="glass section reveal" id="costos">
-      <h2><i data-lucide="bar-chart-3"></i> Sensibilidad de costos (240h/mes)</h2>
-      <p>Con volumen alto de tokens, incluso modelos económicos se salen del objetivo sin gobernanza de salida/contexto.</p>
-      <div class="chart-wrap"><canvas id="costChart" height="120"></canvas></div>
-      <table class="table" style="margin-top:12px">
-        <thead><tr><th>Modelo</th><th>Costo (1M in + 1M out)</th><th>Costo mensual estimado</th><th>Estado</th></tr></thead>
+    <section class="glass reveal" id="cost">
+      <h2><i data-lucide="bar-chart-3"></i> Benchmark de costos y sensibilidad</h2>
+      <div class="chart-card"><canvas id="costChart" height="115"></canvas></div>
+      <table class="table">
+        <thead><tr><th>Modelo</th><th>Costo (1M in + 1M out)</th><th>Estimado mensual</th><th>Estado</th></tr></thead>
         <tbody>
-          <tr><td>GPT-5 mini</td><td>USD 2.25</td><td>~USD 378</td><td><span class="tag">Sobre presupuesto</span></td></tr>
-          <tr><td>Gemini 2.5 Flash-Lite</td><td>USD 0.50</td><td>~USD 84</td><td><span class="tag">Más cercano</span></td></tr>
-          <tr><td>GLM-4.7-FlashX</td><td>USD 0.47</td><td>~USD 79</td><td><span class="tag">Más cercano</span></td></tr>
-          <tr><td>DeepSeek V3.2 (miss)</td><td>USD 0.70</td><td>~USD 117.6</td><td><span class="tag">Sobre presupuesto</span></td></tr>
+          <tr><td>GPT-5 mini</td><td>USD 2.25</td><td>~USD 378</td><td><span class="tag">Alto</span></td></tr>
+          <tr><td>Gemini 2.5 Flash-Lite</td><td>USD 0.50</td><td>~USD 84</td><td><span class="tag">Cercano</span></td></tr>
+          <tr><td>GLM-4.7-FlashX</td><td>USD 0.47</td><td>~USD 79</td><td><span class="tag">Cercano</span></td></tr>
+          <tr><td>DeepSeek V3.2</td><td>USD 0.70</td><td>~USD 117.6</td><td><span class="tag">Alto</span></td></tr>
         </tbody>
       </table>
     </section>
 
-    <section class="split reveal" id="estrategia">
-      <article class="glass section">
-        <h3><i data-lucide="shield-check"></i> Estrategia de control</h3>
-        <ul class="list">
-          <li>LiteLLM (o gateway equivalente) con <b>virtual keys y tope mensual duro</b> por rol.</li>
-          <li>Routing por agente: manager barato, especialistas ultra baratos, premium solo por excepción.</li>
-          <li>Recorte de contexto: skills mínimas, prompts compactos, respuestas cortas por defecto.</li>
-          <li>Observabilidad semanal: costo/tokens por agente, canal y tipo de tarea.</li>
-        </ul>
-      </article>
-      <article class="glass section">
-        <h3><i data-lucide="calendar-clock"></i> Plan de implementación (2 fases)</h3>
-        <ul class="list">
-          <li><b>Fase 1 (semana actual):</b> topes, alertas, límites de salida, dashboard de gasto diario.</li>
-          <li><b>Fase 2 (siguiente):</b> node Mac mini, catálogo de sub-agents, playbooks API-first (GitHub/Netlify/Vercel).</li>
-          <li><b>Resultado esperado:</b> operación estable con costo predecible.</li>
-        </ul>
-      </article>
+    <section class="glass reveal" id="strategy">
+      <h2><i data-lucide="shield-check"></i> Estrategia recomendada (v3)</h2>
+      <div class="grid2">
+        <div>
+          <div class="feature"><i data-lucide="key-round"></i><div><b>Presupuesto duro por key</b><br><small>Hard cap mensual por rol (manager/especialista).</small></div></div>
+          <div class="feature"><i data-lucide="git-branch"></i><div><b>Routing por criticidad</b><br><small>Premium solo para tareas de alto impacto.</small></div></div>
+          <div class="feature"><i data-lucide="scissors"></i><div><b>Compresión de tokens</b><br><small>Prompts/skills mínimos y output corto por defecto.</small></div></div>
+        </div>
+        <div>
+          <div class="feature"><i data-lucide="gauge"></i><div><b>Observabilidad semanal</b><br><small>Coste por agente, tipo de tarea y canal.</small></div></div>
+          <div class="feature"><i data-lucide="alarm-clock"></i><div><b>Límites operativos</b><br><small>Timeout, concurrencia y tamaño máximo de respuesta.</small></div></div>
+          <div class="feature"><i data-lucide="check-check"></i><div><b>Escalado con aprobación</b><br><small>Escalar modelo solo cuando la tarea lo justifique.</small></div></div>
+        </div>
+      </div>
     </section>
 
-    <div class="footer reveal">Landing generada a partir de la investigación OpenClaw · Interplay · 2026</div>
-  </div>
+    <section class="glass reveal" id="roadmap">
+      <h2><i data-lucide="route"></i> Roadmap de implementación</h2>
+      <div class="timeline">
+        <article class="phase">
+          <h3>Fase 1 · Control (Semana actual)</h3>
+          <ul>
+            <li>Aplicar topes mensuales por rol.</li>
+            <li>Activar alertas y dashboard diario.</li>
+            <li>Reducir tokens (skills/prompts/output).</li>
+          </ul>
+        </article>
+        <article class="phase">
+          <h3>Fase 2 · Escalado (Siguiente semana)</h3>
+          <ul>
+            <li>Incorporar node Mac mini en flujos críticos.</li>
+            <li>Estandarizar catálogo de sub-agents.</li>
+            <li>Playbooks API-first para deploy/diagnóstico.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-<script>
-  lucide.createIcons();
+    <div class="footer">OpenClaw V3 · Landing ejecutiva con hero espacial en Three.js</div>
+  </main>
 
-  const costCtx = document.getElementById('costChart');
-  new Chart(costCtx, {
-    type: 'bar',
-    data: {
-      labels: ['GPT-5 mini', 'Flash-Lite', 'FlashX', 'DeepSeek'],
-      datasets: [
-        { label: 'Costo mensual (USD)', data: [378,84,79,117.6], backgroundColor: ['#5d8dff','#3edfa9','#5ae3c6','#ffbe74'], borderRadius: 8 },
-        { label: 'Objetivo máximo', data: [50,50,50,50], type:'line', borderColor:'#ff6f91', backgroundColor:'#ff6f91', pointRadius:0, borderWidth:2 }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: { ticks: { color:'#d8e4ff' }, grid: { color:'rgba(255,255,255,.06)' } },
-        y: { ticks: { color:'#d8e4ff' }, grid: { color:'rgba(255,255,255,.08)' } }
+  <script>
+    lucide.createIcons();
+
+    // Reveal on scroll
+    const io=new IntersectionObserver((entries)=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    // Cost chart
+    new Chart(document.getElementById('costChart'), {
+      type:'bar',
+      data:{
+        labels:['GPT-5 mini','Flash-Lite','FlashX','DeepSeek'],
+        datasets:[
+          {label:'Costo mensual (USD)',data:[378,84,79,117.6],backgroundColor:['#5f8fff','#47e0ae','#66e8c8','#ffc57d'],borderRadius:8},
+          {label:'Meta máxima',data:[50,50,50,50],type:'line',borderColor:'#ff6d95',pointRadius:0,borderWidth:2}
+        ]
       },
-      plugins: { legend: { labels: { color:'#d8e4ff' } } }
-    }
-  });
+      options:{scales:{x:{ticks:{color:'#d8e4ff'},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#d8e4ff'},grid:{color:'rgba(255,255,255,.08)'}}},plugins:{legend:{labels:{color:'#d8e4ff'}}}}
+    });
 
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} })
-  },{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-</script>
+    // Three.js starfield + nebula points
+    const canvas=document.getElementById('space');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+    camera.position.z=35;
+
+    const starsGeom=new THREE.BufferGeometry();
+    const starCount=2200;
+    const pos=new Float32Array(starCount*3);
+    for(let i=0;i<starCount;i++){
+      pos[i*3]=(Math.random()-0.5)*220;
+      pos[i*3+1]=(Math.random()-0.5)*160;
+      pos[i*3+2]=(Math.random()-0.5)*180;
+    }
+    starsGeom.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    const starsMat=new THREE.PointsMaterial({color:0xbcd2ff,size:0.28,sizeAttenuation:true,transparent:true,opacity:.92});
+    const stars=new THREE.Points(starsGeom,starsMat);
+    scene.add(stars);
+
+    const nebulaGeom=new THREE.BufferGeometry();
+    const nebCount=450;
+    const nebPos=new Float32Array(nebCount*3);
+    for(let i=0;i<nebCount;i++){
+      nebPos[i*3]=(Math.random()-0.5)*180;
+      nebPos[i*3+1]=(Math.random()-0.5)*120;
+      nebPos[i*3+2]=(Math.random()-0.5)*120;
+    }
+    nebulaGeom.setAttribute('position',new THREE.BufferAttribute(nebPos,3));
+    const nebMat=new THREE.PointsMaterial({color:0x8c6dff,size:0.9,transparent:true,opacity:.24,blending:THREE.AdditiveBlending});
+    const nebula=new THREE.Points(nebulaGeom,nebMat);
+    scene.add(nebula);
+
+    const light=new THREE.PointLight(0x6fa8ff,1.2,200); light.position.set(20,15,20); scene.add(light);
+
+    function resize(){
+      const w=window.innerWidth,h=window.innerHeight;
+      renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize',resize); resize();
+
+    let mx=0,my=0;
+    window.addEventListener('mousemove',(e)=>{mx=(e.clientX/window.innerWidth-.5)*0.6;my=(e.clientY/window.innerHeight-.5)*0.6;});
+
+    function animate(t){
+      const time=t*0.00015;
+      stars.rotation.y=time*0.7 + mx*0.35;
+      stars.rotation.x=time*0.2 + my*0.25;
+      nebula.rotation.y=-time*0.35;
+      nebula.rotation.z=time*0.12;
+      camera.position.x += ((mx*2.0)-camera.position.x)*0.02;
+      camera.position.y += ((-my*1.2)-camera.position.y)*0.02;
+      renderer.render(scene,camera);
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  </script>
 </body>
 </html>
