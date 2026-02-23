@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw V4 · Presentación ejecutiva</title>
+  <title>OpenClaw V4.2 · Presentación ejecutiva</title>
   <meta name="description" content="Landing tipo presentación con scroll snap, navegación por secciones y hero espacial Three.js." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,12 +12,18 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <style>
-    :root{--bg:#040714;--panel:rgba(11,18,38,.72);--line:#2c3e76;--text:#edf3ff;--muted:#a2b5e6;--p:#7bb2ff;--c:#67e1ff;--m:#cf7dff}
-    *{box-sizing:border-box} html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui;overflow:hidden}
+    :root{--bg:#040714;--panel:rgba(11,18,38,.72);--line:#2c3e76;--text:#edf3ff;--muted:#a9bae8;--p:#7bb2ff;--c:#67e1ff;--m:#cf7dff;--focus:#ffd166}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui;overflow:hidden}
+    a,button{font:inherit}
     a{text-decoration:none;color:inherit}
+    :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:10px}
 
     #space{position:fixed;inset:0;z-index:-2}
     .veil{position:fixed;inset:0;z-index:-1;background:radial-gradient(1000px 500px at 10% 0%,rgba(69,122,255,.22),transparent 60%),radial-gradient(900px 550px at 95% 10%,rgba(194,95,255,.20),transparent 50%),linear-gradient(180deg,rgba(4,7,20,.25),rgba(4,7,20,.8) 65%,rgba(4,7,20,1));pointer-events:none}
+
+    .skip-link{position:fixed;left:12px;top:-40px;z-index:100;background:#1c326d;border:1px solid #4f79da;color:#fff;padding:8px 12px;border-radius:10px;transition:.2s}
+    .skip-link:focus{top:12px}
 
     .nav{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:40;width:min(1180px,calc(100% - 20px));}
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));backdrop-filter: blur(16px);border:1px solid var(--line);border-radius:16px}
@@ -29,11 +35,12 @@
     .deck{height:100vh;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
     .slide{scroll-snap-align:start;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px 26px}
     .panel{width:min(1180px,100%);padding:28px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter: blur(16px);border:1px solid var(--line);position:relative;max-height:calc(100vh - 120px);overflow:auto}
+    .section-title{display:flex;align-items:center;gap:10px}
 
-    h1{font-size:52px;line-height:1.02;margin:10px 0 10px;letter-spacing:-.04em}
-    h2{margin:0 0 10px;font-size:34px;letter-spacing:-.03em}
+    h1{font-size:clamp(2rem,4vw,3.3rem);line-height:1.05;margin:10px 0 10px;letter-spacing:-.04em}
+    h2{margin:0 0 10px;font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-.03em}
     .grad{background:linear-gradient(90deg,var(--p),var(--c),var(--m));-webkit-background-clip:text;background-clip:text;color:transparent}
-    p{color:var(--muted);line-height:1.6}
+    p{color:var(--muted);line-height:1.65;max-width:72ch}
 
     .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}
     .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:rgba(39,63,130,.45);border:1px solid #3a5cb0;font-size:12px;color:#d5e3ff}
@@ -62,23 +69,32 @@
     .next{position:absolute;right:20px;bottom:18px}
     .next button{padding:10px 14px;border-radius:999px;border:1px solid #3c5aa8;background:rgba(39,68,140,.75);color:#e4eeff;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 
+    .dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:grid;gap:8px;z-index:30}
+    .dots button{width:10px;height:10px;border-radius:50%;border:1px solid #5d79c2;background:#2a3d73;opacity:.7;cursor:pointer}
+    .dots button.active{width:12px;height:12px;background:#9dc4ff;opacity:1}
+
     @media (max-width:980px){
       html,body{overflow:auto}.deck{height:auto;overflow:visible;scroll-snap-type:none}
       .slide{min-height:auto;padding:78px 12px 16px}.panel{max-height:none}
       .hero,.grid2,.metrics,.timeline{grid-template-columns:1fr}
-      h1{font-size:36px} h2{font-size:28px}
-      .menu{display:none}
+      .menu,.dots{display:none}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important;transition:none !important}
+      .deck{scroll-behavior:auto;scroll-snap-type:none}
     }
   </style>
 </head>
 <body>
-  <canvas id="space"></canvas>
-  <div class="veil"></div>
+  <a class="skip-link" href="#s1">Saltar al contenido</a>
+  <canvas id="space" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
 
-  <div class="nav">
+  <header class="nav" role="banner">
     <div class="nav-inner">
-      <div class="brand"><div class="brand-badge">OC</div> OpenClaw V4</div>
-      <nav class="menu">
+      <div class="brand"><div class="brand-badge">OC</div> OpenClaw V4.2</div>
+      <nav class="menu" aria-label="Secciones de la presentación">
         <a href="#s1">Inicio</a>
         <a href="#s2">Arquitectura</a>
         <a href="#s3">Costos</a>
@@ -86,16 +102,24 @@
         <a href="#s5">Roadmap</a>
       </nav>
     </div>
-  </div>
+  </header>
 
-  <div class="deck" id="deck">
-    <section class="slide" id="s1">
+  <aside class="dots" aria-label="Progreso por sección">
+    <button data-go="s1" aria-label="Ir a Inicio"></button>
+    <button data-go="s2" aria-label="Ir a Arquitectura"></button>
+    <button data-go="s3" aria-label="Ir a Costos"></button>
+    <button data-go="s4" aria-label="Ir a Estrategia"></button>
+    <button data-go="s5" aria-label="Ir a Roadmap"></button>
+  </aside>
+
+  <main class="deck" id="deck" role="main">
+    <section class="slide" id="s1" aria-labelledby="t1">
       <article class="panel">
         <div class="hero">
           <div>
             <span class="eyebrow"><i data-lucide="sparkles"></i> Presentación ejecutiva · Interplay</span>
-            <h1>OpenClaw como sistema<br><span class="grad">escalable, gobernado y rentable</span></h1>
-            <p>Esta versión está diseñada como presentación: una sección por pantalla, foco total, navegación clara y ritmo visual para comunicar decisiones.</p>
+            <h1 id="t1">OpenClaw como sistema<br><span class="grad">escalable, gobernado y rentable</span></h1>
+            <p>Estructura de presentación full-screen para centrar la atención en cada decisión: una sección por pantalla, navegación explícita y visualización de avance.</p>
             <div class="hero-cta">
               <button class="btn" data-go="s2"><i data-lucide="arrow-down-circle"></i> Empezar</button>
               <a class="btn alt" href="https://github.com/pipedrau/openclaw-investigacion-landing" target="_blank" rel="noreferrer"><i data-lucide="github"></i> Repo</a>
@@ -106,32 +130,33 @@
               <div class="metric"><div class="l">Clave</div><div class="n">Hard cap</div></div>
             </div>
           </div>
-          <div class="hero-side"><img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="Hero visual" /></div>
+          <div class="hero-side"><img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="Vista de centro de control visual para estrategia de IA" /></div>
         </div>
         <div class="next"><button data-go="s2">Siguiente sección <i data-lucide="chevrons-down"></i></button></div>
       </article>
     </section>
 
-    <section class="slide" id="s2">
+    <section class="slide" id="s2" aria-labelledby="t2">
       <article class="panel">
-        <h2><i data-lucide="network"></i> Arquitectura operativa</h2>
+        <h2 id="t2" class="section-title"><i data-lucide="network"></i> Arquitectura operativa</h2>
+        <p>Diseño por responsabilidades para aislar riesgo, mantener claridad y escalar capacidades sin inflar costos.</p>
         <div class="grid2">
           <div>
             <div class="feature"><i data-lucide="message-circle"></i><div><b>Manager Agent</b><br><small>Coordina, aprueba y mantiene contexto corto.</small></div></div>
             <div class="feature"><i data-lucide="users"></i><div><b>Specialist Sub-agents</b><br><small>Ejecución en background con límites operativos.</small></div></div>
             <div class="feature"><i data-lucide="laptop"></i><div><b>Node Mac mini</b><br><small>Acción local de CLI/repos con allowlists.</small></div></div>
           </div>
-          <div class="feature" style="align-items:stretch"><img src="assets/2026-02-23-openclaw-architecture-flow.png" alt="Flow" style="width:100%;border-radius:12px;object-fit:cover;min-height:260px"/></div>
+          <div class="feature" style="align-items:stretch"><img src="assets/2026-02-23-openclaw-architecture-flow.png" alt="Diagrama de flujo de arquitectura manager y especialistas" style="width:100%;border-radius:12px;object-fit:cover;min-height:260px"/></div>
         </div>
         <div class="next"><button data-go="s3">Siguiente sección <i data-lucide="chevrons-down"></i></button></div>
       </article>
     </section>
 
-    <section class="slide" id="s3">
+    <section class="slide" id="s3" aria-labelledby="t3">
       <article class="panel">
-        <h2><i data-lucide="bar-chart-3"></i> Benchmark de costos</h2>
-        <p>Comparativo mensual en escenario intensivo (240h/mes).</p>
-        <div class="chart-card"><canvas id="costChart" height="130"></canvas></div>
+        <h2 id="t3" class="section-title"><i data-lucide="bar-chart-3"></i> Benchmark de costos</h2>
+        <p>Comparativo mensual en escenario intensivo (240h/mes), con línea objetivo para lectura inmediata.</p>
+        <div class="chart-card"><canvas id="costChart" height="130" aria-label="Gráfico de costos mensuales por modelo" role="img"></canvas></div>
         <table class="table">
           <thead><tr><th>Modelo</th><th>Costo (1M in + 1M out)</th><th>Mensual</th><th>Estado</th></tr></thead>
           <tbody>
@@ -145,9 +170,10 @@
       </article>
     </section>
 
-    <section class="slide" id="s4">
+    <section class="slide" id="s4" aria-labelledby="t4">
       <article class="panel">
-        <h2><i data-lucide="shield-check"></i> Estrategia v4 (enfoque presupuesto)</h2>
+        <h2 id="t4" class="section-title"><i data-lucide="shield-check"></i> Estrategia v4.2</h2>
+        <p>Framework de control para sostener calidad y mantener el gasto dentro del presupuesto meta.</p>
         <div class="grid2">
           <div>
             <div class="feature"><i data-lucide="key-round"></i><div><b>Hard caps por rol</b><br><small>Tope mensual por key virtual.</small></div></div>
@@ -164,9 +190,9 @@
       </article>
     </section>
 
-    <section class="slide" id="s5">
+    <section class="slide" id="s5" aria-labelledby="t5">
       <article class="panel">
-        <h2><i data-lucide="route"></i> Roadmap 2 fases</h2>
+        <h2 id="t5" class="section-title"><i data-lucide="route"></i> Roadmap 2 fases</h2>
         <div class="timeline">
           <div class="phase"><h3>Fase 1 · Control</h3><ul><li>Topes por rol</li><li>Alertas + dashboard diario</li><li>Recorte de tokens</li></ul></div>
           <div class="phase"><h3>Fase 2 · Escalar</h3><ul><li>Node Mac mini</li><li>Catálogo de sub-agents</li><li>Playbooks API-first</li></ul></div>
@@ -175,24 +201,22 @@
         <div class="next"><button data-go="s1">Volver al inicio <i data-lucide="arrow-up-circle"></i></button></div>
       </article>
     </section>
-  </div>
+  </main>
 
   <script>
     lucide.createIcons();
 
-    // Section nav + next buttons
     const deck=document.getElementById('deck');
     const links=[...document.querySelectorAll('.menu a')];
+    const dots=[...document.querySelectorAll('.dots button')];
     const go=(id)=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
     document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
 
-    const obs=new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id));
-        }
-      })
-    },{root:deck,threshold:.6});
+    const setActive=(id)=>{
+      links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+id));
+      dots.forEach(d=>d.classList.toggle('active', d.dataset.go===id));
+    }
+    const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)setActive(e.target.id)})},{root:deck,threshold:.6});
     document.querySelectorAll('.slide').forEach(s=>obs.observe(s));
 
     new Chart(document.getElementById('costChart'), {
@@ -204,30 +228,25 @@
       options:{plugins:{legend:{labels:{color:'#d8e4ff'}}},scales:{x:{ticks:{color:'#d8e4ff'},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#d8e4ff'},grid:{color:'rgba(255,255,255,.08)'}}}}
     });
 
-    // Three.js starfield
-    const canvas=document.getElementById('space');
-    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-    const scene=new THREE.Scene();
-    const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000); camera.position.z=35;
-
-    const starsGeom=new THREE.BufferGeometry();
-    const count=2200; const pos=new Float32Array(count*3);
-    for(let i=0;i<count;i++){pos[i*3]=(Math.random()-.5)*220;pos[i*3+1]=(Math.random()-.5)*160;pos[i*3+2]=(Math.random()-.5)*180}
-    starsGeom.setAttribute('position',new THREE.BufferAttribute(pos,3));
-    const stars=new THREE.Points(starsGeom,new THREE.PointsMaterial({color:0xbcd2ff,size:.28,sizeAttenuation:true,transparent:true,opacity:.9}));
-    scene.add(stars);
-
-    const nebGeom=new THREE.BufferGeometry(); const n=450; const np=new Float32Array(n*3);
-    for(let i=0;i<n;i++){np[i*3]=(Math.random()-.5)*180;np[i*3+1]=(Math.random()-.5)*120;np[i*3+2]=(Math.random()-.5)*120}
-    nebGeom.setAttribute('position',new THREE.BufferAttribute(np,3));
-    const neb=new THREE.Points(nebGeom,new THREE.PointsMaterial({color:0x8c6dff,size:.9,transparent:true,opacity:.24,blending:THREE.AdditiveBlending})); scene.add(neb);
-
-    function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
-    addEventListener('resize',resize); resize();
-    let mx=0,my=0; addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.6;my=(e.clientY/innerHeight-.5)*.6;});
-    function anim(t){const time=t*0.00015;stars.rotation.y=time*0.7+mx*0.35;stars.rotation.x=time*0.2+my*0.25;neb.rotation.y=-time*0.35;neb.rotation.z=time*0.12;camera.position.x+=((mx*2)-camera.position.x)*.02;camera.position.y+=((-my*1.2)-camera.position.y)*.02;renderer.render(scene,camera);requestAnimationFrame(anim)}
-    requestAnimationFrame(anim);
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const canvas=document.getElementById('space');
+      const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+      renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+      const scene=new THREE.Scene();
+      const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000); camera.position.z=35;
+      const starsGeom=new THREE.BufferGeometry(); const count=2200; const pos=new Float32Array(count*3);
+      for(let i=0;i<count;i++){pos[i*3]=(Math.random()-.5)*220;pos[i*3+1]=(Math.random()-.5)*160;pos[i*3+2]=(Math.random()-.5)*180}
+      starsGeom.setAttribute('position',new THREE.BufferAttribute(pos,3));
+      const stars=new THREE.Points(starsGeom,new THREE.PointsMaterial({color:0xbcd2ff,size:.28,sizeAttenuation:true,transparent:true,opacity:.9})); scene.add(stars);
+      const nebGeom=new THREE.BufferGeometry(); const n=450; const np=new Float32Array(n*3);
+      for(let i=0;i<n;i++){np[i*3]=(Math.random()-.5)*180;np[i*3+1]=(Math.random()-.5)*120;np[i*3+2]=(Math.random()-.5)*120}
+      nebGeom.setAttribute('position',new THREE.BufferAttribute(np,3));
+      const neb=new THREE.Points(nebGeom,new THREE.PointsMaterial({color:0x8c6dff,size:.9,transparent:true,opacity:.24,blending:THREE.AdditiveBlending})); scene.add(neb);
+      function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()} addEventListener('resize',resize); resize();
+      let mx=0,my=0; addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.6;my=(e.clientY/innerHeight-.5)*.6;});
+      function anim(t){const time=t*0.00015;stars.rotation.y=time*0.7+mx*0.35;stars.rotation.x=time*0.2+my*0.25;neb.rotation.y=-time*0.35;neb.rotation.z=time*0.12;camera.position.x+=((mx*2)-camera.position.x)*.02;camera.position.y+=((-my*1.2)-camera.position.y)*.02;renderer.render(scene,camera);requestAnimationFrame(anim)}
+      requestAnimationFrame(anim);
+    }
   </script>
 </body>
 </html>
