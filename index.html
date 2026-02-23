@@ -3,236 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw · Estrategia de Implementación</title>
-  <meta name="description" content="Landing visual premium para la estrategia OpenClaw en Interplay." />
+  <title>OpenClaw · Estrategia de Implementación (Executive)</title>
+  <meta name="description" content="Estrategia ejecutiva de implementación OpenClaw: arquitectura, costos, riesgos, KPIs y roadmap 30-60-90." />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            display: ['Space Grotesk', 'sans-serif'],
-            body: ['Inter', 'sans-serif']
-          },
-          colors: {
-            ink: '#070B1A',
-            panel: '#0F1730',
-            line: '#2A3E73',
-            accent: '#7BA8FF',
-            mint: '#63E6CF',
-            rose: '#D68BFF'
-          },
-          boxShadow: {
-            glow: '0 0 0 1px rgba(121,153,236,.25), 0 20px 80px rgba(44,84,190,.25)'
-          }
+          fontFamily: { display:['Space Grotesk','sans-serif'], body:['Inter','sans-serif'] },
+          colors: { ink:'#070B1A', panel:'#0F1730', line:'#2A3E73', accent:'#7BA8FF', mint:'#63E6CF', rose:'#D68BFF', warn:'#FFD166' },
+          boxShadow: { glow:'0 0 0 1px rgba(121,153,236,.25), 0 20px 80px rgba(44,84,190,.25)' }
         }
       }
     }
   </script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-
   <style>
-    :root{--r:22px}
-    html{scroll-behavior:smooth}
     body{font-family:Inter,sans-serif;background:#070B1A;color:#EAF0FF}
-    .noise::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E")}
-    .glass{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(120,151,230,.28);backdrop-filter:blur(14px)}
-    .radial-bg{position:fixed;inset:0;z-index:-2;background:
-      radial-gradient(900px 500px at 8% -10%,rgba(79,128,255,.35),transparent 55%),
-      radial-gradient(900px 500px at 100% 0%,rgba(178,95,255,.26),transparent 50%),
-      radial-gradient(700px 380px at 50% 120%,rgba(84,229,199,.18),transparent 52%),
-      #070B1A;
-    }
-    .blob{position:absolute;filter:blur(40px);opacity:.45;animation:float 8s ease-in-out infinite}
-    .blob.b1{width:180px;height:180px;background:#6B8DFF;top:-40px;right:8%}
-    .blob.b2{width:160px;height:160px;background:#7CFFDA;bottom:-20px;left:5%;animation-delay:1.2s}
-    .blob.b3{width:120px;height:120px;background:#D68BFF;bottom:25%;right:-20px;animation-delay:.6s}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-
-    .reveal{opacity:0;transform:translateY(16px);transition:all .75s cubic-bezier(.2,.7,.2,1)}
-    .reveal.in{opacity:1;transform:translateY(0)}
-
-    .grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
-
-    .hero-title{font-family:'Space Grotesk',sans-serif;line-height:.98;letter-spacing:-.035em}
+    .glass{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(120,151,230,.28);backdrop-filter:blur(12px)}
+    .radial-bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(900px 500px at 8% -10%,rgba(79,128,255,.35),transparent 55%),radial-gradient(900px 500px at 100% 0%,rgba(178,95,255,.26),transparent 50%),#070B1A}
+    .hero-title{font-family:'Space Grotesk',sans-serif;line-height:.98;letter-spacing:-.03em}
+    .section-title{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
     .gradient-text{background:linear-gradient(90deg,#9CC2FF,#7DF0DE,#D6A0FF);-webkit-background-clip:text;background-clip:text;color:transparent}
-
-    .nav-link{position:relative}
-    .nav-link::after{content:'';position:absolute;left:0;bottom:-3px;width:0;height:2px;background:#9CC2FF;transition:.25s}
-    .nav-link:hover::after,.nav-link.active::after{width:100%}
-
-    @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+    .svg-card{border:1px solid rgba(120,151,230,.28);border-radius:16px;background:rgba(12,20,44,.6)}
+    .chip{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
   </style>
 </head>
-<body class="noise antialiased">
-  <div class="radial-bg"></div>
+<body class="antialiased">
+<div class="radial-bg"></div>
+<header class="sticky top-0 z-40 backdrop-blur bg-[#070B1A]/70 border-b border-blue-300/10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3"><div class="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-rose grid place-content-center text-ink font-bold">OC</div><div class="font-display font-bold">OpenClaw Strategy Deck</div></div>
+    <nav class="hidden md:flex gap-5 text-sm text-blue-100/85">
+      <a href="#resumen">Resumen</a><a href="#arquitectura">Arquitectura</a><a href="#costos">Costos</a><a href="#riesgos">Riesgos</a><a href="#kpis">KPIs</a><a href="#roadmap">30-60-90</a>
+    </nav>
+  </div>
+</header>
 
-  <header class="fixed top-3 left-1/2 -translate-x-1/2 w-[min(1160px,calc(100%-20px))] z-50">
-    <div class="glass rounded-2xl px-4 py-3 flex items-center justify-between shadow-glow">
-      <div class="flex items-center gap-3">
-        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-rose grid place-content-center text-ink font-bold">OC</div>
-        <div class="font-display font-bold tracking-tight">OpenClaw Strategy Deck</div>
-      </div>
-      <nav class="hidden md:flex items-center gap-5 text-sm text-blue-100/90">
-        <a class="nav-link" href="#hero">Inicio</a>
-        <a class="nav-link" href="#arquitectura">Arquitectura</a>
-        <a class="nav-link" href="#costos">Costos</a>
-        <a class="nav-link" href="#roadmap">Roadmap</a>
-      </nav>
-      <a href="#costos" class="text-sm font-semibold rounded-xl px-3 py-2 bg-blue-500/30 border border-blue-300/30 hover:bg-blue-400/30 transition">Ver benchmark</a>
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+  <section id="resumen" class="glass rounded-3xl p-6 sm:p-8 shadow-glow">
+    <p class="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border border-blue-300/30 bg-blue-400/10"><i data-lucide="sparkles" class="h-3.5"></i> OpenClaw · Estrategia de implementación Interplay</p>
+    <h1 class="hero-title text-4xl sm:text-5xl mt-4">Decisión ejecutiva: <span class="gradient-text">operar OpenClaw con control de costo</span> sin perder capacidad</h1>
+    <p class="text-blue-100/80 mt-4 max-w-3xl">Problema: el costo crece por contexto + verbosidad + paralelismo. Solución: arquitectura manager/especialistas, routing por criticidad y hard caps por rol. Resultado esperado: operación estable dentro de objetivo mensual.</p>
+    <div class="grid sm:grid-cols-4 gap-3 mt-6">
+      <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Meta mensual</div><div class="font-display text-xl">USD 40–50</div></div>
+      <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Ritmo</div><div class="font-display text-xl">8h/día</div></div>
+      <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">No negociable</div><div class="font-display text-xl">Hard cap</div></div>
+      <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Gobierno</div><div class="font-display text-xl">Escalado aprobado</div></div>
     </div>
-  </header>
+  </section>
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-12">
-
-    <section id="hero" class="relative glass rounded-[28px] p-6 sm:p-8 lg:p-10 overflow-hidden reveal">
-      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
-      <div class="grid lg:grid-cols-2 gap-8 items-center">
-        <div>
-          <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-300/30 bg-blue-400/10 text-xs text-blue-100"><i data-lucide="sparkles" class="h-3.5"></i> OpenClaw • Estrategia ejecutiva Interplay</p>
-          <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl mt-4 mb-4">Estrategia de <span class="gradient-text">implementación de OpenClaw</span> en Interplay</h1>
-          <p class="text-blue-100/80 max-w-xl">Documento visual para decisión ejecutiva: arquitectura recomendada, benchmark de costos, gobierno operativo y plan de implementación por fases para OpenClaw.</p>
-          <div class="mt-6 flex flex-wrap gap-3">
-            <a href="#arquitectura" class="px-4 py-2.5 rounded-xl bg-blue-500/40 border border-blue-300/40 font-semibold hover:-translate-y-0.5 transition">Ver estrategia</a>
-            <a href="https://github.com/pipedrau/openclaw-investigacion-landing" target="_blank" rel="noreferrer" class="px-4 py-2.5 rounded-xl border border-blue-300/30 bg-white/5 font-semibold hover:bg-white/10 transition">Repositorio</a>
-          </div>
-          <div class="mt-7 grid grid-cols-3 gap-3">
-            <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Objetivo</div><div class="font-display text-xl">USD 40–50</div></div>
-            <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Ritmo</div><div class="font-display text-xl">8h/día</div></div>
-            <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Palanca</div><div class="font-display text-xl">Hard Cap</div></div>
-          </div>
-        </div>
-        <div class="relative">
-          <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="Visual de centro de control OpenClaw" class="w-full rounded-3xl border border-blue-300/30 shadow-glow object-cover min-h-[360px]">
-          <svg class="absolute -bottom-5 -left-5 w-36 h-36 text-mint/50" viewBox="0 0 200 200" fill="none"><path d="M100 10c49.7 0 90 40.3 90 90s-40.3 90-90 90S10 149.7 10 100 50.3 10 100 10Z" stroke="currentColor" stroke-width="10" stroke-dasharray="8 12"/></svg>
-        </div>
+  <section id="arquitectura" class="grid lg:grid-cols-2 gap-4">
+    <article class="glass rounded-3xl p-6">
+      <h2 class="section-title text-3xl mb-3">1) Arquitectura objetivo (C4-lite)</h2>
+      <p class="text-blue-100/80 mb-4">Separar conversación, ejecución y despliegue reduce riesgo y costo.</p>
+      <svg viewBox="0 0 760 420" class="w-full svg-card p-3">
+        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9CC2FF"/></marker></defs>
+        <rect x="20" y="160" width="120" height="80" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="80" y="205" fill="#EAF0FF" text-anchor="middle" font-size="14">Telegram</text>
+        <rect x="190" y="130" width="150" height="120" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="265" y="170" fill="#EAF0FF" text-anchor="middle" font-size="14">Manager</text><text x="265" y="192" fill="#9DB4EA" text-anchor="middle" font-size="12">Triage + Aprobación</text>
+        <rect x="390" y="70" width="150" height="100" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="465" y="115" fill="#EAF0FF" text-anchor="middle" font-size="13">Sub-agent Dev</text>
+        <rect x="390" y="190" width="150" height="100" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="465" y="235" fill="#EAF0FF" text-anchor="middle" font-size="13">Sub-agent Deploy</text>
+        <rect x="590" y="70" width="150" height="100" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="665" y="115" fill="#EAF0FF" text-anchor="middle" font-size="13">GitHub</text>
+        <rect x="590" y="190" width="150" height="100" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="665" y="235" fill="#EAF0FF" text-anchor="middle" font-size="13">Netlify/Vercel</text>
+        <rect x="390" y="310" width="350" height="80" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="565" y="355" fill="#EAF0FF" text-anchor="middle" font-size="13">Node Mac mini (exec local + allowlists)</text>
+        <line x1="140" y1="200" x2="190" y2="190" stroke="#9CC2FF" marker-end="url(#arr)"/>
+        <line x1="340" y1="170" x2="390" y2="120" stroke="#9CC2FF" marker-end="url(#arr)"/>
+        <line x1="340" y1="210" x2="390" y2="240" stroke="#9CC2FF" marker-end="url(#arr)"/>
+        <line x1="540" y1="120" x2="590" y2="120" stroke="#9CC2FF" marker-end="url(#arr)"/>
+        <line x1="540" y1="240" x2="590" y2="240" stroke="#9CC2FF" marker-end="url(#arr)"/>
+        <line x1="465" y1="290" x2="465" y2="310" stroke="#9CC2FF" marker-end="url(#arr)"/>
+      </svg>
+    </article>
+    <article class="glass rounded-3xl p-6">
+      <h2 class="section-title text-3xl mb-3">2) Routing de modelos</h2>
+      <p class="text-blue-100/80 mb-4">Modelo barato por defecto; premium solo con gate explícito.</p>
+      <svg viewBox="0 0 760 420" class="w-full svg-card p-3">
+        <defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9CC2FF"/></marker></defs>
+        <rect x="30" y="165" width="140" height="70" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="100" y="205" fill="#EAF0FF" text-anchor="middle" font-size="13">Task Input</text>
+        <rect x="220" y="150" width="170" height="100" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="305" y="190" fill="#EAF0FF" text-anchor="middle" font-size="13">Classifier</text><text x="305" y="210" fill="#9DB4EA" text-anchor="middle" font-size="11">risk + complexity</text>
+        <rect x="450" y="70" width="250" height="90" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="575" y="110" fill="#EAF0FF" text-anchor="middle" font-size="13">Cheap model lane</text>
+        <rect x="450" y="180" width="250" height="90" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="575" y="218" fill="#EAF0FF" text-anchor="middle" font-size="13">Escalation gate</text><text x="575" y="236" fill="#D8B9FF" text-anchor="middle" font-size="11">approval + budget check</text>
+        <rect x="450" y="290" width="250" height="90" rx="12" fill="#4D2A2A" stroke="#FF9A9A"/><text x="575" y="330" fill="#EAF0FF" text-anchor="middle" font-size="13">Premium lane</text>
+        <line x1="170" y1="200" x2="220" y2="200" stroke="#9CC2FF" marker-end="url(#arr2)"/>
+        <line x1="390" y1="180" x2="450" y2="115" stroke="#9CC2FF" marker-end="url(#arr2)"/>
+        <line x1="390" y1="200" x2="450" y2="225" stroke="#9CC2FF" marker-end="url(#arr2)"/>
+        <line x1="575" y1="270" x2="575" y2="290" stroke="#9CC2FF" marker-end="url(#arr2)"/>
+      </svg>
+      <div class="mt-4 grid sm:grid-cols-2 gap-3 text-sm">
+        <div class="chip border-mint/40 text-mint">Default: cheap lane</div>
+        <div class="chip border-warn/50 text-warn">Gate: approval + budget</div>
       </div>
-    </section>
+    </article>
+  </section>
 
-    <section id="arquitectura" class="reveal">
-      <div class="flex items-end justify-between mb-4">
-        <h2 class="font-display text-3xl sm:text-4xl">Arquitectura que sí escala</h2>
-        <div class="hidden sm:flex items-center gap-2 text-xs text-blue-100/70"><i data-lucide="layout-grid" class="h-4"></i> Modular + Gobernable</div>
-      </div>
-      <div class="grid-auto">
-        <article class="glass rounded-3xl p-5">
-          <i data-lucide="message-circle" class="h-6 w-6 text-accent mb-3"></i>
-          <h3 class="font-display text-2xl mb-2">Manager</h3>
-          <p class="text-blue-100/80 text-sm">Conversa, prioriza, decide y evita inflar contexto. Máxima claridad para el usuario final.</p>
-        </article>
-        <article class="glass rounded-3xl p-5">
-          <i data-lucide="users" class="h-6 w-6 text-rose mb-3"></i>
-          <h3 class="font-display text-2xl mb-2">Especialistas</h3>
-          <p class="text-blue-100/80 text-sm">Sub-agents por dominio con límites operativos y salida estructurada.</p>
-        </article>
-        <article class="glass rounded-3xl p-5">
-          <i data-lucide="laptop" class="h-6 w-6 text-mint mb-3"></i>
-          <h3 class="font-display text-2xl mb-2">Node Mac mini</h3>
-          <p class="text-blue-100/80 text-sm">Acción local en CLI/repos con allowlists: menor riesgo, mayor control.</p>
-        </article>
-      </div>
+  <section id="costos" class="glass rounded-3xl p-6 sm:p-8">
+    <h2 class="section-title text-3xl mb-2">3) Costos y sensibilidad</h2>
+    <p class="text-blue-100/80 mb-5">Gráfico comparativo + línea objetivo. Meta: convertir decisión de modelo en decisión de gobernanza.</p>
+    <div class="glass rounded-2xl p-4"><canvas id="costChart" height="110"></canvas></div>
+    <div class="grid md:grid-cols-3 gap-3 mt-4 text-sm">
+      <div class="glass rounded-xl p-3"><b class="text-mint">Palanca #1</b><p class="text-blue-100/75">Reducir verbosidad de salida</p></div>
+      <div class="glass rounded-xl p-3"><b class="text-mint">Palanca #2</b><p class="text-blue-100/75">Skills mínimas por agente</p></div>
+      <div class="glass rounded-xl p-3"><b class="text-mint">Palanca #3</b><p class="text-blue-100/75">Batch/caching donde aplique</p></div>
+    </div>
+  </section>
 
-      <div class="glass rounded-3xl p-5 mt-4 grid lg:grid-cols-[1.1fr,.9fr] gap-5 items-center">
-        <div>
-          <h3 class="font-display text-2xl mb-2">Flujo visual de operación</h3>
-          <p class="text-blue-100/80 mb-4">Diseño de comunicación visual: de intención del usuario a ejecución técnica, con checkpoints de aprobación.</p>
-          <ul class="space-y-2 text-sm text-blue-100/85">
-            <li class="flex gap-2"><i data-lucide="check-circle-2" class="h-4 text-mint"></i> Menos fricción para pedir acciones complejas.</li>
-            <li class="flex gap-2"><i data-lucide="check-circle-2" class="h-4 text-mint"></i> Respuestas legibles para negocio y para equipo técnico.</li>
-            <li class="flex gap-2"><i data-lucide="check-circle-2" class="h-4 text-mint"></i> Permite auditar costos y decisiones por paso.</li>
-          </ul>
-        </div>
-        <img src="assets/2026-02-23-openclaw-architecture-flow.png" alt="Flujo de arquitectura" class="w-full rounded-2xl border border-blue-300/30 object-cover min-h-[280px]">
-      </div>
-    </section>
+  <section id="riesgos" class="glass rounded-3xl p-6 sm:p-8">
+    <h2 class="section-title text-3xl mb-4">4) Matriz de riesgos operativos</h2>
+    <div class="overflow-auto">
+      <table class="min-w-full text-sm border border-blue-300/20 rounded-xl overflow-hidden">
+        <thead class="bg-blue-400/10"><tr><th class="px-4 py-3 text-left">Riesgo</th><th class="px-4 py-3 text-left">Impacto</th><th class="px-4 py-3 text-left">Prob.</th><th class="px-4 py-3 text-left">Mitigación</th></tr></thead>
+        <tbody class="text-blue-100/85">
+          <tr class="border-t border-blue-300/15"><td class="px-4 py-3">Drift de costos por output largo</td><td class="px-4 py-3">Alto</td><td class="px-4 py-3">Alta</td><td class="px-4 py-3">Límite de longitud + templates de respuesta</td></tr>
+          <tr class="border-t border-blue-300/15"><td class="px-4 py-3">Inconsistencia provider fallback</td><td class="px-4 py-3">Medio</td><td class="px-4 py-3">Media</td><td class="px-4 py-3">Pin por proveedor/escenario crítico</td></tr>
+          <tr class="border-t border-blue-300/15"><td class="px-4 py-3">Escalado premium sin control</td><td class="px-4 py-3">Alto</td><td class="px-4 py-3">Media</td><td class="px-4 py-3">Gate con aprobación + presupuesto residual</td></tr>
+          <tr class="border-t border-blue-300/15"><td class="px-4 py-3">Sub-agents sin límites</td><td class="px-4 py-3">Alto</td><td class="px-4 py-3">Media</td><td class="px-4 py-3">Timeout + concurrencia máxima + summary obligatorio</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
-    <section id="costos" class="reveal glass rounded-3xl p-6 sm:p-8">
-      <h2 class="font-display text-3xl sm:text-4xl mb-2">Benchmark de costos</h2>
-      <p class="text-blue-100/80 mb-5">Lectura rápida: en uso intensivo, sin gobernanza, el gasto se dispara. Esta visual deja claro el gap vs objetivo mensual.</p>
-      <div class="glass rounded-2xl p-4"><canvas id="costChart" height="120"></canvas></div>
-      <div class="mt-4 overflow-auto rounded-2xl border border-blue-300/20">
-        <table class="min-w-full text-sm">
-          <thead class="bg-blue-400/10 text-blue-100"><tr><th class="text-left px-4 py-3">Modelo</th><th class="text-left px-4 py-3">Costo 1M in+out</th><th class="text-left px-4 py-3">Estimado mensual</th><th class="text-left px-4 py-3">Estado</th></tr></thead>
-          <tbody class="text-blue-100/85">
-            <tr class="border-t border-blue-300/15"><td class="px-4 py-3">GPT-5 mini</td><td class="px-4 py-3">USD 2.25</td><td class="px-4 py-3">~USD 378</td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full bg-rose-400/20 border border-rose-300/30 text-xs">Alto</span></td></tr>
-            <tr class="border-t border-blue-300/15"><td class="px-4 py-3">Gemini 2.5 Flash-Lite</td><td class="px-4 py-3">USD 0.50</td><td class="px-4 py-3">~USD 84</td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full bg-mint/20 border border-mint/40 text-xs">Cercano</span></td></tr>
-            <tr class="border-t border-blue-300/15"><td class="px-4 py-3">GLM-4.7-FlashX</td><td class="px-4 py-3">USD 0.47</td><td class="px-4 py-3">~USD 79</td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full bg-mint/20 border border-mint/40 text-xs">Cercano</span></td></tr>
-            <tr class="border-t border-blue-300/15"><td class="px-4 py-3">DeepSeek V3.2</td><td class="px-4 py-3">USD 0.70</td><td class="px-4 py-3">~USD 117.6</td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full bg-rose-400/20 border border-rose-300/30 text-xs">Alto</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+  <section id="kpis" class="grid lg:grid-cols-2 gap-4">
+    <article class="glass rounded-3xl p-6">
+      <h2 class="section-title text-3xl mb-4">5) KPIs de éxito (30 días)</h2>
+      <ul class="space-y-2 text-blue-100/85 text-sm">
+        <li>• Costo diario y mensual por agente/rol</li>
+        <li>• Tokens por tarea y tasa de ahorro vs baseline</li>
+        <li>• Tiempo medio de resolución por tipo de trabajo</li>
+        <li>• Tasa de éxito de playbooks (deploy/diagnóstico)</li>
+        <li>• % de ejecuciones que requirieron escalado premium</li>
+      </ul>
+    </article>
+    <article class="glass rounded-3xl p-6">
+      <h2 class="section-title text-3xl mb-4">6) Decisiones pendientes</h2>
+      <ul class="space-y-2 text-blue-100/85 text-sm">
+        <li>• Gateway inicial (LiteLLM vs OpenRouter vs Vercel AI Gateway)</li>
+        <li>• Presupuesto por rol y política de sobrepaso</li>
+        <li>• Criterios de escalado a modelo premium</li>
+        <li>• Owners de aprobación y auditoría</li>
+      </ul>
+    </article>
+  </section>
 
-    <section id="roadmap" class="reveal">
-      <h2 class="font-display text-3xl sm:text-4xl mb-4">Roadmap de implementación</h2>
-      <div class="grid md:grid-cols-2 gap-4">
-        <article class="glass rounded-3xl p-6 relative overflow-hidden">
-          <svg class="absolute -right-8 -top-8 w-28 h-28 text-accent/20" viewBox="0 0 100 100" fill="currentColor"><circle cx="50" cy="50" r="50"/></svg>
-          <h3 class="font-display text-2xl mb-2">Fase 1 · Control</h3>
-          <ul class="space-y-2 text-blue-100/85 text-sm">
-            <li>• Topes mensuales por rol</li>
-            <li>• Alertas + dashboard diario</li>
-            <li>• Compresión de prompts y outputs</li>
-          </ul>
-        </article>
-        <article class="glass rounded-3xl p-6 relative overflow-hidden">
-          <svg class="absolute -left-10 -bottom-10 w-32 h-32 text-rose/20" viewBox="0 0 100 100" fill="currentColor"><rect x="8" y="8" width="84" height="84" rx="20"/></svg>
-          <h3 class="font-display text-2xl mb-2">Fase 2 · Escalado</h3>
-          <ul class="space-y-2 text-blue-100/85 text-sm">
-            <li>• Node Mac mini productivo</li>
-            <li>• Catálogo de sub-agents por dominio</li>
-            <li>• Playbooks API-first de deploy</li>
-          </ul>
-        </article>
-      </div>
+  <section id="roadmap" class="glass rounded-3xl p-6 sm:p-8">
+    <h2 class="section-title text-3xl mb-4">7) Plan 30-60-90</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+      <article class="glass rounded-2xl p-4"><h3 class="font-display text-xl mb-2">30 días · Control</h3><p class="text-sm text-blue-100/80">Hard caps, routing base, límites de salida, dashboard costo/tokens.</p></article>
+      <article class="glass rounded-2xl p-4"><h3 class="font-display text-xl mb-2">60 días · Estabilizar</h3><p class="text-sm text-blue-100/80">Playbooks productivos, tuning de prompts, reducción de retry/fallback.</p></article>
+      <article class="glass rounded-2xl p-4"><h3 class="font-display text-xl mb-2">90 días · Escalar</h3><p class="text-sm text-blue-100/80">Catálogo de especialistas, gobierno formal y expansión de casos de uso.</p></article>
+    </div>
+  </section>
+</main>
 
-      <div class="mt-5 glass rounded-3xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <p class="text-blue-100/80">Siguiente paso: validar owners, aprobar arquitectura objetivo y ejecutar Fase 1 con topes de presupuesto por rol.</p>
-        <a href="#hero" class="px-4 py-2.5 rounded-xl bg-blue-500/40 border border-blue-300/40 font-semibold hover:-translate-y-0.5 transition whitespace-nowrap">Volver al inicio</a>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    lucide.createIcons();
-
-    const sections=[...document.querySelectorAll('main section[id]')];
-    const links=[...document.querySelectorAll('.nav-link')];
-    const obs=new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id));
-        }
-      })
-    },{threshold:.45});
-    sections.forEach(s=>obs.observe(s));
-
-    const revObs=new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})
-    },{threshold:.15});
-    document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
-
-    new Chart(document.getElementById('costChart'), {
-      type:'bar',
-      data:{labels:['GPT-5 mini','Flash-Lite','FlashX','DeepSeek'],datasets:[
-        {label:'Costo mensual (USD)',data:[378,84,79,117.6],backgroundColor:['#7AA8FF','#63E6CF','#8AF0DE','#D68BFF'],borderRadius:10},
-        {label:'Objetivo max',data:[50,50,50,50],type:'line',borderColor:'#FFD166',pointRadius:0,borderWidth:2,tension:0}
-      ]},
-      options:{
-        responsive:true,
-        plugins:{legend:{labels:{color:'#DBE7FF'}}},
-        scales:{
-          x:{ticks:{color:'#DBE7FF'},grid:{color:'rgba(255,255,255,.06)'}},
-          y:{ticks:{color:'#DBE7FF'},grid:{color:'rgba(255,255,255,.08)'}}
-        }
-      }
-    });
-  </script>
+<script>
+  lucide.createIcons();
+  new Chart(document.getElementById('costChart'), {
+    type:'bar',
+    data:{labels:['GPT-5 mini','Flash-Lite','FlashX','DeepSeek','MiniMax M2.5'],datasets:[
+      {label:'Costo mensual estimado (USD)',data:[378,84,79,117.6,252],backgroundColor:['#7AA8FF','#63E6CF','#8AF0DE','#D68BFF','#FF9A9A'],borderRadius:10},
+      {label:'Meta máxima',data:[50,50,50,50,50],type:'line',borderColor:'#FFD166',pointRadius:0,borderWidth:2}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#DBE7FF'}}},scales:{x:{ticks:{color:'#DBE7FF'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#DBE7FF'},grid:{color:'rgba(255,255,255,.08)'}}}}
+  });
+</script>
 </body>
 </html>
