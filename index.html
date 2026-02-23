@@ -3,178 +3,176 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw · Estrategia de Implementación</title>
-  <meta name="description" content="Estrategia de implementación de OpenClaw en Interplay: arquitectura, costos, riesgos y plan 30-60-90." />
+  <title>OpenClaw Strategy · Interplay</title>
+  <meta name="description" content="Estrategia de implementación OpenClaw: arquitectura, costos, riesgos y plan de ejecución." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config={theme:{extend:{fontFamily:{display:['Space Grotesk','sans-serif'],body:['Inter','sans-serif']},colors:{bg:'#060A17',ink:'#0D1530',line:'#2E437C',accent:'#80AEFF',mint:'#70E8D3',violet:'#C895FF',warn:'#FFD166'}}}}
+    tailwind.config={theme:{extend:{fontFamily:{display:['Poppins','sans-serif'],body:['Inter','sans-serif']},colors:{bg:'#050915',panel:'#0E1631',line:'#2D437D',accent:'#84B4FF',mint:'#76F0D7',violet:'#C995FF',warn:'#FFD166'}}}}
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body{font-family:Inter,sans-serif;background:#060A17;color:#EAF0FF}
-    .display{font-family:'Space Grotesk',sans-serif;letter-spacing:-.03em}
-    .glass{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(136,166,243,.28);backdrop-filter:blur(12px)}
-    .bg-main{position:fixed;inset:0;z-index:-2;background:radial-gradient(1000px 500px at 0% -15%,rgba(76,125,255,.35),transparent 55%),radial-gradient(900px 450px at 100% 0%,rgba(190,112,255,.25),transparent 52%),#060A17}
-    .section-cut{height:84px;mask: radial-gradient(80px at 50% -20px,#0000 98%,#000) 50% 0/160px 100% no-repeat,linear-gradient(#000,#000);-webkit-mask: radial-gradient(80px at 50% -20px,#0000 98%,#000) 50% 0/160px 100% no-repeat,linear-gradient(#000,#000)}
-    .reveal{opacity:0;transform:translateY(16px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
-    .reveal.in{opacity:1;transform:none}
-    .flow-line{position:relative}
-    .flow-line:before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:linear-gradient(#7AA8FF,#70E8D3)}
-    .navlink{position:relative}
-    .navlink:after{content:'';position:absolute;left:0;bottom:-2px;height:2px;width:0;background:#9fc2ff;transition:.25s}
-    .navlink:hover:after,.navlink.active:after{width:100%}
-    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,sans-serif;background:#050915;color:#EAF0FF}
+    .bgfx{position:fixed;inset:0;z-index:-2;background:
+      radial-gradient(1000px 560px at -10% -10%,rgba(86,134,255,.38),transparent 58%),
+      radial-gradient(900px 560px at 110% -5%,rgba(196,120,255,.26),transparent 55%),
+      radial-gradient(700px 400px at 50% 120%,rgba(107,250,215,.15),transparent 60%),#050915}
+    .display{font-family:Poppins,sans-serif;letter-spacing:-.03em}
+    .glass{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));border:1px solid rgba(140,170,245,.28);backdrop-filter:blur(10px)}
+    .stroke-card{border:1px solid rgba(140,170,245,.24);background:#0b132b}
+    .grad-text{background:linear-gradient(90deg,#9ec5ff,#87f0dd,#d4a3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero-orb{position:absolute;border-radius:999px;filter:blur(42px);opacity:.42;animation:float 8s ease-in-out infinite}
+    .o1{width:180px;height:180px;background:#7aa7ff;right:12%;top:-38px}.o2{width:140px;height:140px;background:#74f0d8;left:-24px;bottom:-18px;animation-delay:1.2s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .tilt:hover{transform:translateY(-4px)}
+    .tilt{transition:.25s ease}
+    .section-title{font-family:Poppins,sans-serif;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.04;letter-spacing:-.02em}
+    .kicker{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:#a7b9ea}
+    .sticky-col{position:sticky;top:98px}
+    .timeline:before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:linear-gradient(#7ea9ff,#78efd8)}
+    .timeline > div{position:relative;padding-left:34px}.timeline > div:before{content:'';position:absolute;left:4px;top:7px;width:16px;height:16px;border-radius:50%;background:#79a8ff;box-shadow:0 0 0 4px rgba(121,168,255,.2)}
+    .pill{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .7rem;border-radius:999px;border:1px solid rgba(255,255,255,.25);font-size:.72rem}
+    .navlink{position:relative}.navlink:after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:2px;background:#9ec5ff;transition:.2s}.navlink:hover:after,.navlink.active:after{width:100%}
   </style>
 </head>
 <body class="antialiased">
-<div class="bg-main"></div>
+<div class="bgfx"></div>
 
-<header class="fixed top-3 left-1/2 -translate-x-1/2 w-[min(1160px,calc(100%-20px))] z-50">
+<header class="fixed top-3 left-1/2 -translate-x-1/2 w-[min(1180px,calc(100%-20px))] z-50">
   <div class="glass rounded-2xl px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3"><div class="h-8 w-8 rounded-lg bg-gradient-to-br from-accent to-violet grid place-content-center text-bg font-bold">OC</div><div class="display font-bold">OpenClaw Strategy</div></div>
-    <nav class="hidden md:flex gap-5 text-sm text-blue-100/90">
-      <a class="navlink" href="#inicio">Inicio</a>
-      <a class="navlink" href="#arquitectura">Arquitectura</a>
-      <a class="navlink" href="#costos">Costos</a>
-      <a class="navlink" href="#riesgos">Riesgos</a>
-      <a class="navlink" href="#plan">Plan</a>
+    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-violet grid place-content-center text-bg font-bold">OC</div><div class="display font-semibold">OpenClaw Strategy</div></div>
+    <nav class="hidden md:flex gap-6 text-sm text-blue-100/90">
+      <a class="navlink" href="#overview">Overview</a>
+      <a class="navlink" href="#architecture">Arquitectura</a>
+      <a class="navlink" href="#economics">Economía</a>
+      <a class="navlink" href="#execution">Ejecución</a>
     </nav>
+    <a href="#execution" class="text-sm font-semibold px-3 py-2 rounded-xl border border-blue-300/35 bg-blue-400/20">Decidir hoy</a>
   </div>
 </header>
 
-<main class="pt-24 pb-20">
-  <!-- HERO NARRATIVO -->
-  <section id="inicio" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
-    <div class="grid lg:grid-cols-[1.05fr,.95fr] gap-6 items-stretch">
-      <article class="glass rounded-3xl p-7 sm:p-9 relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-violet/30 blur-3xl"></div>
-        <p class="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border border-blue-300/30 bg-blue-400/10"><i data-lucide="sparkles" class="h-3.5"></i> Estrategia de implementación · Interplay</p>
-        <h1 class="display text-4xl sm:text-5xl mt-4 leading-[.98]">Operar OpenClaw <span class="bg-gradient-to-r from-accent via-mint to-violet bg-clip-text text-transparent">sin perder control de costo</span></h1>
-        <p class="mt-4 text-blue-100/80 max-w-xl">Esta landing resume la decisión real: cómo implementar OpenClaw para trabajar todos los días con gobernanza técnica, económica y operativa.</p>
-        <div class="mt-6 grid sm:grid-cols-3 gap-3">
-          <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Objetivo mensual</div><div class="display text-xl">USD 40–50</div></div>
-          <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Uso esperado</div><div class="display text-xl">8h/día</div></div>
-          <div class="glass rounded-2xl p-3"><div class="text-[11px] text-blue-100/70">Regla central</div><div class="display text-xl">Hard cap</div></div>
-        </div>
-      </article>
-      <article class="rounded-3xl overflow-hidden border border-blue-300/30">
-        <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="Centro de control OpenClaw" class="w-full h-full object-cover min-h-[360px]" />
-      </article>
-    </div>
-  </section>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 space-y-20">
 
-  <div class="section-cut bg-transparent mt-8"></div>
-
-  <!-- ARQUITECTURA STORY -->
-  <section id="arquitectura" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
-    <div class="grid lg:grid-cols-[.9fr,1.1fr] gap-6 items-start">
-      <article class="glass rounded-3xl p-6">
-        <h2 class="display text-3xl mb-2">Arquitectura que se entiende</h2>
-        <p class="text-blue-100/80 mb-5">No es solo tecnología: es una cadena de decisión clara entre conversación, ejecución y despliegue.</p>
-        <div class="flow-line space-y-4 pl-10">
-          <div class="glass rounded-xl p-3"><b>1) Manager</b><p class="text-sm text-blue-100/75">Triage, aprobación y control de contexto.</p></div>
-          <div class="glass rounded-xl p-3"><b>2) Especialistas</b><p class="text-sm text-blue-100/75">Sub-agents por dominio con límites.</p></div>
-          <div class="glass rounded-xl p-3"><b>3) Node Mac mini</b><p class="text-sm text-blue-100/75">Ejecución local con allowlists.</p></div>
-          <div class="glass rounded-xl p-3"><b>4) APIs de entrega</b><p class="text-sm text-blue-100/75">GitHub, Netlify, Vercel, sin fricción.</p></div>
-        </div>
-      </article>
-      <article class="glass rounded-3xl p-4">
-        <svg viewBox="0 0 760 430" class="w-full rounded-2xl border border-blue-300/20 bg-[#0b1228]">
-          <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9CC2FF"/></marker></defs>
-          <rect x="26" y="170" width="128" height="76" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="90" y="214" fill="#EAF0FF" text-anchor="middle" font-size="14">Telegram</text>
-          <rect x="205" y="140" width="162" height="112" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="286" y="182" fill="#EAF0FF" text-anchor="middle" font-size="14">Manager</text><text x="286" y="204" fill="#9DB4EA" text-anchor="middle" font-size="11">Triage + approval</text>
-          <rect x="418" y="78" width="148" height="90" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="492" y="123" fill="#EAF0FF" text-anchor="middle" font-size="13">Sub-agent Dev</text>
-          <rect x="418" y="190" width="148" height="90" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="492" y="235" fill="#EAF0FF" text-anchor="middle" font-size="13">Sub-agent Deploy</text>
-          <rect x="606" y="78" width="128" height="90" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="670" y="123" fill="#EAF0FF" text-anchor="middle" font-size="12">GitHub</text>
-          <rect x="606" y="190" width="128" height="90" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="670" y="235" fill="#EAF0FF" text-anchor="middle" font-size="12">Netlify/Vercel</text>
-          <rect x="418" y="304" width="316" height="84" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="576" y="351" fill="#EAF0FF" text-anchor="middle" font-size="12">Node Mac mini · exec local + allowlists</text>
-          <line x1="154" y1="206" x2="205" y2="196" stroke="#9CC2FF" marker-end="url(#arr)"/>
-          <line x1="367" y1="182" x2="418" y2="124" stroke="#9CC2FF" marker-end="url(#arr)"/>
-          <line x1="367" y1="220" x2="418" y2="234" stroke="#9CC2FF" marker-end="url(#arr)"/>
-          <line x1="566" y1="124" x2="606" y2="124" stroke="#9CC2FF" marker-end="url(#arr)"/>
-          <line x1="566" y1="234" x2="606" y2="234" stroke="#9CC2FF" marker-end="url(#arr)"/>
-          <line x1="492" y1="280" x2="492" y2="304" stroke="#9CC2FF" marker-end="url(#arr)"/>
-        </svg>
-      </article>
-    </div>
-  </section>
-
-  <div class="section-cut bg-transparent mt-8"></div>
-
-  <!-- COSTOS EXPERIMENTAL -->
-  <section id="costos" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
-    <article class="glass rounded-3xl p-6 sm:p-8">
-      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
-        <div>
-          <h2 class="display text-3xl">Dónde se rompe el presupuesto</h2>
-          <p class="text-blue-100/80 mt-1">El costo no depende solo del modelo: depende del output, contexto y paralelismo.</p>
-        </div>
-        <div class="flex gap-2 text-xs">
-          <span class="chip border-mint/40 text-mint">Palanca 1: output</span>
-          <span class="chip border-accent/40 text-accent">Palanca 2: contexto</span>
-          <span class="chip border-warn/50 text-warn">Palanca 3: routing</span>
-        </div>
+  <!-- HERO -->
+  <section id="overview" class="grid lg:grid-cols-[1.05fr,.95fr] gap-6 items-stretch">
+    <article class="glass rounded-[30px] p-7 sm:p-10 relative overflow-hidden">
+      <span class="hero-orb o1"></span><span class="hero-orb o2"></span>
+      <p class="kicker">Interplay · implementación OpenClaw</p>
+      <h1 class="display text-4xl sm:text-5xl lg:text-6xl leading-[.95] mt-3">Implementar OpenClaw para <span class="grad-text">producir más con presupuesto controlado</span></h1>
+      <p class="mt-5 text-blue-100/80 text-lg max-w-2xl">No es una demo técnica. Es un sistema operativo de trabajo: arquitectura por roles, política de escalado y control de costo por diseño.</p>
+      <div class="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Meta</div><div class="display text-xl">USD 40–50</div></div>
+        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Ritmo</div><div class="display text-xl">8h/día</div></div>
+        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Prioridad</div><div class="display text-xl">Control</div></div>
+        <div class="stroke-card rounded-2xl p-3"><div class="text-[11px] text-blue-100/65">Regla</div><div class="display text-xl">Hard cap</div></div>
       </div>
-      <div class="grid lg:grid-cols-[1.2fr,.8fr] gap-4">
-        <div class="glass rounded-2xl p-4"><canvas id="costChart" height="120"></canvas></div>
-        <div class="rounded-2xl p-4 border border-blue-300/20 bg-gradient-to-b from-blue-400/10 to-transparent">
-          <h3 class="display text-xl mb-2">Lectura ejecutiva</h3>
-          <ul class="space-y-2 text-sm text-blue-100/85">
-            <li>• Flash-Lite/FlashX acercan la meta pero no garantizan USD 50 solos.</li>
-            <li>• Sin límites de salida, cualquier modelo se vuelve caro.</li>
-            <li>• El control real viene de gobernanza + hard caps.</li>
-          </ul>
-        </div>
+    </article>
+    <article class="relative overflow-hidden rounded-[30px] border border-blue-300/30">
+      <img src="assets/2026-02-23-openclaw-hero-control-room.png" alt="OpenClaw visual" class="w-full h-full object-cover min-h-[420px]"/>
+      <div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-[#050915] to-transparent">
+        <p class="text-sm text-blue-100/80">Manager + especialistas + node local = ejecución más segura y más barata.</p>
       </div>
     </article>
   </section>
 
-  <div class="section-cut bg-transparent mt-8"></div>
-
-  <!-- RIESGOS + KPI -->
-  <section id="riesgos" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
-    <div class="grid lg:grid-cols-2 gap-6">
-      <article class="glass rounded-3xl p-6">
-        <h2 class="display text-3xl mb-3">Matriz de riesgos</h2>
-        <div class="space-y-3 text-sm">
-          <div class="rounded-xl border border-rose-300/40 bg-rose-400/10 p-3"><b>Alto:</b> deriva de costo por respuestas largas → límite de longitud + templates.</div>
-          <div class="rounded-xl border border-yellow-300/40 bg-yellow-300/10 p-3"><b>Medio:</b> inconsistencias por fallback multi-provider → pin por escenario crítico.</div>
-          <div class="rounded-xl border border-rose-300/40 bg-rose-400/10 p-3"><b>Alto:</b> escalado premium sin gate → aprobación + presupuesto residual.</div>
-          <div class="rounded-xl border border-yellow-300/40 bg-yellow-300/10 p-3"><b>Medio:</b> sub-agents sin límites → timeout + concurrencia máxima.</div>
-        </div>
-      </article>
-      <article id="plan" class="glass rounded-3xl p-6">
-        <h2 class="display text-3xl mb-3">Plan 30-60-90</h2>
-        <div class="space-y-3">
-          <div class="glass rounded-xl p-3"><b>30 días · Control</b><p class="text-sm text-blue-100/75">Hard caps, routing base, dashboard de costo/tokens.</p></div>
-          <div class="glass rounded-xl p-3"><b>60 días · Estabilizar</b><p class="text-sm text-blue-100/75">Playbooks productivos, tuning de prompts y retries.</p></div>
-          <div class="glass rounded-xl p-3"><b>90 días · Escalar</b><p class="text-sm text-blue-100/75">Catálogo de especialistas + gobierno formal por roles.</p></div>
-        </div>
-      </article>
+  <!-- ARCHITECTURE: editorial split -->
+  <section id="architecture" class="grid lg:grid-cols-[.42fr,.58fr] gap-6 items-start">
+    <aside class="sticky-col glass rounded-3xl p-6">
+      <p class="kicker">Arquitectura operativa</p>
+      <h2 class="section-title mt-2">Un flujo que negocio y tecnología entienden igual</h2>
+      <p class="mt-3 text-blue-100/80">Cada bloque tiene una responsabilidad clara: conversación, ejecución especializada, y acción local con controles.</p>
+      <div class="mt-5 flex flex-wrap gap-2">
+        <span class="pill text-mint border-mint/40">Manager</span>
+        <span class="pill text-accent border-accent/40">Sub-agents</span>
+        <span class="pill text-violet border-violet/40">Node Mac mini</span>
+      </div>
+    </aside>
+    <div class="space-y-4">
+      <div class="stroke-card rounded-3xl p-4 tilt">
+        <svg viewBox="0 0 760 360" class="w-full rounded-2xl bg-[#0b1228] border border-blue-300/20">
+          <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9CC2FF"/></marker></defs>
+          <rect x="22" y="140" width="120" height="70" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="82" y="182" fill="#EAF0FF" text-anchor="middle" font-size="13">Telegram</text>
+          <rect x="190" y="115" width="152" height="95" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="266" y="153" fill="#EAF0FF" text-anchor="middle" font-size="13">Manager</text>
+          <rect x="390" y="60" width="140" height="78" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="460" y="102" fill="#EAF0FF" text-anchor="middle" font-size="12">Sub-agent Dev</text>
+          <rect x="390" y="154" width="140" height="78" rx="12" fill="#17364A" stroke="#47C9B0"/><text x="460" y="196" fill="#EAF0FF" text-anchor="middle" font-size="12">Sub-agent Deploy</text>
+          <rect x="574" y="60" width="160" height="78" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="654" y="102" fill="#EAF0FF" text-anchor="middle" font-size="12">GitHub/CI</text>
+          <rect x="574" y="154" width="160" height="78" rx="12" fill="#2A1E4D" stroke="#B884FF"/><text x="654" y="196" fill="#EAF0FF" text-anchor="middle" font-size="12">Netlify/Vercel</text>
+          <rect x="390" y="258" width="344" height="70" rx="12" fill="#1A2951" stroke="#4D6FC0"/><text x="562" y="299" fill="#EAF0FF" text-anchor="middle" font-size="12">Node Mac mini · exec local + allowlists</text>
+          <line x1="142" y1="175" x2="190" y2="162" stroke="#9CC2FF" marker-end="url(#a)"/>
+          <line x1="342" y1="148" x2="390" y2="99" stroke="#9CC2FF" marker-end="url(#a)"/>
+          <line x1="342" y1="176" x2="390" y2="188" stroke="#9CC2FF" marker-end="url(#a)"/>
+          <line x1="530" y1="99" x2="574" y2="99" stroke="#9CC2FF" marker-end="url(#a)"/>
+          <line x1="530" y1="188" x2="574" y2="188" stroke="#9CC2FF" marker-end="url(#a)"/>
+        </svg>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div class="glass rounded-2xl p-4"><h3 class="display text-xl">Menos fricción</h3><p class="text-sm text-blue-100/75 mt-1">El manager traduce intención a ejecución.</p></div>
+        <div class="glass rounded-2xl p-4"><h3 class="display text-xl">Más control</h3><p class="text-sm text-blue-100/75 mt-1">Gates y límites antes de escalar costo.</p></div>
+        <div class="glass rounded-2xl p-4"><h3 class="display text-xl">Más velocidad</h3><p class="text-sm text-blue-100/75 mt-1">Playbooks API-first, sin UI manual.</p></div>
+      </div>
     </div>
   </section>
+
+  <!-- ECONOMICS: dramatic -->
+  <section id="economics" class="grid lg:grid-cols-[1.15fr,.85fr] gap-6 items-start">
+    <article class="glass rounded-3xl p-6 sm:p-8">
+      <p class="kicker">Economía operativa</p>
+      <h2 class="section-title mt-1">El enemigo no es el modelo: <span class="grad-text">es la salida larga sin gobernanza</span></h2>
+      <div class="mt-5 stroke-card rounded-2xl p-4"><canvas id="costChart" height="120"></canvas></div>
+    </article>
+    <article class="space-y-3">
+      <div class="glass rounded-2xl p-4 border-l-4 border-mint"><b>Palanca 1 · Verbosidad</b><p class="text-sm text-blue-100/75 mt-1">Respuestas cortas por defecto y formatos estructurados.</p></div>
+      <div class="glass rounded-2xl p-4 border-l-4 border-accent"><b>Palanca 2 · Contexto</b><p class="text-sm text-blue-100/75 mt-1">Skills mínimas por rol y prompts compactos.</p></div>
+      <div class="glass rounded-2xl p-4 border-l-4 border-warn"><b>Palanca 3 · Escalado</b><p class="text-sm text-blue-100/75 mt-1">Premium solo con gate de aprobación + presupuesto residual.</p></div>
+      <div class="glass rounded-2xl p-4"><b class="display text-xl">Conclusión</b><p class="text-sm text-blue-100/80 mt-1">Con routing + hard caps + disciplina de output, la meta de costo deja de ser aspiracional y se vuelve operable.</p></div>
+    </article>
+  </section>
+
+  <!-- EXECUTION: timeline + decisions -->
+  <section id="execution" class="grid lg:grid-cols-[.95fr,1.05fr] gap-6 items-start">
+    <article class="glass rounded-3xl p-6">
+      <p class="kicker">30-60-90</p>
+      <h2 class="section-title mt-1">Plan de implementación</h2>
+      <div class="timeline relative mt-5 space-y-5">
+        <div><h3 class="display text-xl">30 días · Control</h3><p class="text-sm text-blue-100/75">Hard caps, límites de salida y dashboard de costo/tokens.</p></div>
+        <div><h3 class="display text-xl">60 días · Estabilizar</h3><p class="text-sm text-blue-100/75">Playbooks productivos y tuning de prompts/fallbacks.</p></div>
+        <div><h3 class="display text-xl">90 días · Escalar</h3><p class="text-sm text-blue-100/75">Catálogo de especialistas y gobierno formal por rol.</p></div>
+      </div>
+    </article>
+    <article class="glass rounded-3xl p-6">
+      <p class="kicker">Decisiones para aprobar hoy</p>
+      <h2 class="section-title mt-1">Lo mínimo para arrancar bien</h2>
+      <div class="mt-5 grid gap-3">
+        <div class="stroke-card rounded-xl p-3"><b>1) Gateway inicial</b><p class="text-sm text-blue-100/75">LiteLLM / OpenRouter / Vercel AI Gateway.</p></div>
+        <div class="stroke-card rounded-xl p-3"><b>2) Presupuesto por rol</b><p class="text-sm text-blue-100/75">Manager vs especialistas con hard cap mensual.</p></div>
+        <div class="stroke-card rounded-xl p-3"><b>3) Política de escalado premium</b><p class="text-sm text-blue-100/75">Qué tareas escalan, quién aprueba y con qué umbral.</p></div>
+        <div class="stroke-card rounded-xl p-3"><b>4) KPIs de 30 días</b><p class="text-sm text-blue-100/75">Costo/día, tokens/tarea, éxito de playbooks.</p></div>
+      </div>
+    </article>
+  </section>
+
 </main>
 
 <script>
   lucide.createIcons();
+
+  // nav active
   const links=[...document.querySelectorAll('.navlink')];
-  const sections=[...document.querySelectorAll('section[id]')];
-  const io=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id))}})},{threshold:.45});
-  sections.forEach(s=>io.observe(s));
-  const rv=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.15});
-  document.querySelectorAll('.reveal').forEach(el=>rv.observe(el));
+  const secs=[...document.querySelectorAll('main section[id]')];
+  const io=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}})},{threshold:.45});
+  secs.forEach(s=>io.observe(s));
 
   new Chart(document.getElementById('costChart'),{
     type:'bar',
     data:{labels:['GPT-5 mini','Flash-Lite','FlashX','DeepSeek','MiniMax'],datasets:[
-      {label:'Costo mensual estimado (USD)',data:[378,84,79,117.6,252],backgroundColor:['#7AA8FF','#70E8D3','#8FF3E0','#C895FF','#FF9B9B'],borderRadius:10},
+      {label:'Costo mensual estimado (USD)',data:[378,84,79,117.6,252],backgroundColor:['#84B4FF','#76F0D7','#9CF5E7','#C995FF','#FF9FA0'],borderRadius:10},
       {label:'Meta máxima',data:[50,50,50,50,50],type:'line',borderColor:'#FFD166',pointRadius:0,borderWidth:2}
     ]},
     options:{plugins:{legend:{labels:{color:'#DBE7FF'}}},scales:{x:{ticks:{color:'#DBE7FF'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#DBE7FF'},grid:{color:'rgba(255,255,255,.08)'}}}}
-  })
+  });
 </script>
 </body>
 </html>
