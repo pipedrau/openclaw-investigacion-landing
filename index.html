@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw · Estrategia de costo y arquitectura</title>
+  <meta name="description" content="Landing ejecutiva: benchmark de costos, arquitectura y plan de implementación OpenClaw para presupuesto USD 40–50." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root{--bg:#0b1020;--panel:#121a31;--soft:#1a2647;--txt:#e8edff;--muted:#9fb0df;--pri:#6ea8fe;--ok:#41d39a;--warn:#ffcc66}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui;background:radial-gradient(1200px 600px at 80% -20%,#1b2f70 0%,transparent 60%),var(--bg);color:var(--txt)}
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:stretch}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid #2a3a6a;border-radius:16px;padding:20px}
+    h1{font-size:36px;line-height:1.1;margin:0 0 10px} h2{font-size:22px;margin:0 0 10px} h3{font-size:17px;margin:0 0 8px}
+    p{color:var(--muted);line-height:1.55} .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #3354a6;color:#cfe0ff;padding:7px 12px;border-radius:999px;font-size:13px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.kpi{background:var(--panel);border:1px solid #2a3a6a;border-radius:12px;padding:14px}.kpi b{font-size:24px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.list{display:grid;gap:8px;margin:0;padding-left:0;list-style:none}.list li{display:flex;gap:10px;align-items:flex-start;color:#dbe5ff}
+    .section{margin-top:18px}.table{width:100%;border-collapse:collapse;font-size:14px}.table th,.table td{padding:10px;border-bottom:1px solid #2a3a6a;text-align:left}.table th{color:#cddafe;background:#132041}
+    .tag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;background:#20315e;color:#cfe0ff;border:1px solid #35549f}
+    .plan{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .footer{margin-top:22px;color:#8ea2d8;font-size:13px}
+    @media (max-width:920px){.hero,.grid-2,.plan,.kpis{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <section class="card">
+        <span class="pill"><i data-lucide="bot"></i> OpenClaw · Interplay</span>
+        <h1>Estrategia técnica y financiera<br/>para operar con <span style="color:var(--pri)">USD 40–50/mes</span></h1>
+        <p>El costo se dispara por contexto inflado + respuestas largas + sub-agents sin límites. La solución real no es “cambiar de modelo”, sino imponer gobernanza de tokens y presupuesto por diseño.</p>
+        <div class="kpis">
+          <div class="kpi"><div style="color:var(--muted)">Objetivo mensual</div><b>USD 40–50</b></div>
+          <div class="kpi"><div style="color:var(--muted)">Uso de referencia</div><b>8 h/día</b></div>
+          <div class="kpi"><div style="color:var(--muted)">Palanca crítica</div><b>Hard cap</b></div>
+        </div>
+      </section>
+      <section class="card">
+        <h3><i data-lucide="gauge"></i> Riesgo de sobrecosto</h3>
+        <canvas id="riskChart" height="240"></canvas>
+      </section>
+    </div>
+
+    <section class="section card">
+      <h2><i data-lucide="network"></i> Arquitectura recomendada</h2>
+      <div class="grid-2">
+        <ul class="list">
+          <li><i data-lucide="message-circle"></i><div><b>Manager (Telegram)</b><br/><small>Triaging, contexto corto, herramientas mínimas.</small></div></li>
+          <li><i data-lucide="users"></i><div><b>Specialist sub-agents</b><br/><small>Dev/deploy/research en sesiones aisladas, con aprobación.</small></div></li>
+          <li><i data-lucide="monitor-smartphone"></i><div><b>Node Mac mini</b><br/><small>Ejecución local de CLIs/repos, separando cerebro de acción.</small></div></li>
+        </ul>
+        <ul class="list">
+          <li><i data-lucide="github"></i><div><b>GitHub Actions</b><br/><small>workflow_dispatch para pipeline y logs.</small></div></li>
+          <li><i data-lucide="rocket"></i><div><b>Netlify/Vercel</b><br/><small>Build hooks/API sin depender de navegación UI.</small></div></li>
+          <li><i data-lucide="shield-check"></i><div><b>Governance</b><br/><small>Allowlists, approvals, límites por rol.</small></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section card">
+      <h2><i data-lucide="bar-chart-3"></i> Sensibilidad de costo mensual (240h/mes)</h2>
+      <p>Con volumen alto de tokens, incluso modelos económicos rebasan USD 50 sin control de salida/contexto.</p>
+      <canvas id="costChart" height="130"></canvas>
+      <table class="table" style="margin-top:12px">
+        <thead><tr><th>Modelo</th><th>Costo (1M in + 1M out)</th><th>Costo mensual estimado</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>GPT-5 mini</td><td>USD 2.25</td><td>~USD 378</td><td><span class="tag">Sobre presupuesto</span></td></tr>
+          <tr><td>Gemini 2.5 Flash-Lite</td><td>USD 0.50</td><td>~USD 84</td><td><span class="tag">Más cercano</span></td></tr>
+          <tr><td>GLM-4.7-FlashX</td><td>USD 0.47</td><td>~USD 79</td><td><span class="tag">Más cercano</span></td></tr>
+          <tr><td>DeepSeek V3.2 (miss)</td><td>USD 0.70</td><td>~USD 117.6</td><td><span class="tag">Sobre presupuesto</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section plan">
+      <article class="card">
+        <h3><i data-lucide="target"></i> Recomendación ejecutiva</h3>
+        <ul class="list">
+          <li><i data-lucide="key-round"></i><div><b>LiteLLM + virtual keys</b> con presupuesto mensual duro por rol.</div></li>
+          <li><i data-lucide="git-branch"></i><div><b>Routing por agente:</b> manager barato, especialistas ultra baratos, premium solo por excepción.</div></li>
+          <li><i data-lucide="scissors"></i><div><b>Reducción de tokens:</b> skills mínimas, prompts compactos, respuestas cortas por defecto.</div></li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3><i data-lucide="calendar-clock"></i> Plan de implementación</h3>
+        <p><b>Fase 1 (esta semana):</b> topes de gasto, políticas de salida/contexto, dashboard diario de tokens/costo.</p>
+        <p><b>Fase 2 (próxima):</b> node Mac mini, catálogo de sub-agents, playbooks deploy/diagnóstico por API.</p>
+        <p><b>Entrega esperada:</b> operación estable con control de costo y trazabilidad por agente.</p>
+      </article>
+    </section>
+
+    <div class="footer">Documento visual basado en la investigación de benchmark y estrategia OpenClaw · Interplay · 2026</div>
+  </div>
+
+<script>
+  lucide.createIcons();
+  const riskCtx = document.getElementById('riskChart');
+  new Chart(riskCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Output verboso', 'Contexto inflado', 'Sub-agents paralelos'],
+      datasets: [{ data: [45, 35, 20], backgroundColor: ['#6ea8fe','#8f7bff','#41d39a'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { labels: { color: '#d7e4ff' } } } }
+  });
+
+  const costCtx = document.getElementById('costChart');
+  new Chart(costCtx, {
+    type: 'bar',
+    data: {
+      labels: ['GPT-5 mini', 'Flash-Lite', 'FlashX', 'DeepSeek'],
+      datasets: [
+        { label: 'Costo mensual estimado (USD)', data: [378,84,79,117.6], backgroundColor: ['#5f8fff','#41d39a','#72e7b7','#ffb86b'] },
+        { label: 'Objetivo máximo', data: [50,50,50,50], type:'line', borderColor:'#ff5d73', backgroundColor:'#ff5d73', pointRadius:0, borderWidth:2 }
+      ]
+    },
+    options: {
+      scales: { x: { ticks:{ color:'#d7e4ff' } }, y: { ticks:{ color:'#d7e4ff' }, grid:{ color:'rgba(255,255,255,.08)' } } },
+      plugins: { legend: { labels: { color:'#d7e4ff' } } }
+    }
+  });
+</script>
+</body>
+</html>
